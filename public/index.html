@@ -1,0 +1,3480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E-Card Magic – make a little corner of the internet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Caveat:wght@400;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #eaf4f0;
+  --ink: #1f3a44;
+  --teal: #3f9482;
+  --teal-d: #2b6f60;
+  --mint: #cfe6df;
+  --peach: #e07a5f;
+  --gold: #e8a44e;
+  --line: #cfe3dc;
+  --mut: #5b7480;
+}
+* { box-sizing: border-box; margin: 0; }
+body {
+  font-family: Inter, system-ui, sans-serif;
+  color: var(--ink);
+  background-color: var(--bg);
+  background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 40px 40px;
+  min-height: 100vh;
+  line-height: 1.55;
+  transition: background-color 0.4s ease;
+  overflow-x: hidden;
+}
+h1, h2 { font-family: Fraunces, serif; font-weight: 700; line-height: 1.1; }
+.hand { font-family: Caveat, cursive; color: var(--teal-d); }
+.hidden { display: none !important; }
+button { font: inherit; cursor: pointer; border: 0; }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.btn {
+  background: var(--teal);
+  color: #fff;
+  padding: 13px 26px;
+  border-radius: 999px;
+  font-weight: 600;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,0.18); }
+.btn:active:not(:disabled) { transform: translateY(1px); }
+.btn.ghost { background: #fff; color: var(--teal-d); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+.btn.ghost:hover:not(:disabled) { background: #fbfefd; color: var(--teal); }
+.btn:disabled { opacity: 0.6; cursor: wait; }
+.page { min-height: 100vh; padding-bottom: 110px; }
+.wrap { max-width: 680px; margin: 0 auto; padding: 40px 20px 80px; }
+
+/* Top Event Picker */
+.head { text-align: center; margin-bottom: 24px; }
+.badge-tag {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 5px 14px;
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(4px);
+  color: var(--teal-d);
+  border-radius: 999px;
+  margin-bottom: 12px;
+  border: 1px solid var(--mint);
+}
+.head h1 { font-size: clamp(30px, 6.5vw, 44px); margin: 6px 0; }
+.head p { font-size: 26px; }
+
+.event-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin: 18px 0 14px;
+}
+.event-btn {
+  background: #fff;
+  border: 2px solid var(--mint);
+  color: var(--ink);
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.event-btn:hover { border-color: var(--teal); transform: translateY(-1px); }
+.event-btn.active {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+}
+
+/* Vibe Picker */
+.vibe-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.vibe-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--mut); }
+.vibe-btn {
+  background: rgba(255,255,255,0.85);
+  border: 1.5px solid var(--line);
+  color: var(--ink);
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.vibe-btn.active {
+  background: var(--teal-d);
+  color: #fff;
+  border-color: var(--teal-d);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+/* Card */
+.card {
+  background: #fff;
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 16px 45px rgba(0,0,0,0.08);
+  transform: rotate(-0.3deg);
+  border: 1px solid rgba(0,0,0,0.03);
+}
+label { display: block; font-weight: 600; font-size: 14px; margin: 16px 0 6px; }
+input[type=text], textarea, select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid var(--mint);
+  border-radius: 12px;
+  font: inherit;
+  background: #fbfefd;
+  transition: border-color 0.2s;
+}
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--teal); }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.pics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.pic {
+  aspect-ratio: 1;
+  border: 2px dashed var(--teal);
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  font-size: 13px;
+  color: var(--mut);
+  background: #f4fbf8 center/cover;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.pic:hover { border-color: var(--teal-d); transform: scale(1.02); }
+.pic input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.pic.has span { display: none; }
+.err { color: #b3402a; font-size: 14px; margin-top: 14px; min-height: 20px; text-align: center; font-weight: 500; }
+
+/* Music Upload Section */
+.music-upload-section, .voice-note-section, .addon-box {
+  margin-top: 18px;
+  background: #fbfefd;
+  border: 2px dashed var(--mint);
+  border-radius: 16px;
+  padding: 16px;
+  transition: border-color 0.2s;
+  text-align: left;
+}
+.music-upload-section:hover, .voice-note-section:hover { border-color: var(--teal); }
+.field-hint { font-size: 13px; color: var(--mut); margin-top: -2px; margin-bottom: 12px; line-height: 1.4; }
+
+.song-empty-state, .voice-empty-state {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 4px;
+}
+.song-icon, .voice-icon {
+  font-size: 26px;
+  background: #fff;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  flex: none;
+}
+.song-subhint { font-size: 12px; color: var(--mut); margin-top: 4px; }
+.song-selected-state, .voice-selected-state {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  border-radius: 14px;
+  padding: 12px 14px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+  border: 1px solid var(--mint);
+}
+.song-disc-icon { font-size: 28px; animation: spin 5s linear infinite; display: inline-block; flex: none; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+.song-meta, .voice-meta { flex: 1; min-width: 0; }
+.song-filename, .voice-filename { font-weight: 600; font-size: 14px; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.song-filesize, .voice-filesize { font-size: 12px; color: var(--mut); margin-top: 2px; }
+.song-controls, .voice-controls { display: flex; gap: 6px; flex: none; }
+
+/* Voice Recording Styles */
+.rec-pulse-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff5f5;
+  border: 1.5px solid #ffccd5;
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+.rec-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #e63946;
+  animation: pulseRec 1s infinite;
+}
+@keyframes pulseRec { 50% { transform: scale(1.3); opacity: 0.5; } }
+.rec-timer { font-weight: 700; color: #ba181b; font-size: 15px; font-variant-numeric: tabular-nums; }
+.rec-wave { display: flex; gap: 3px; align-items: center; height: 18px; flex: 1; }
+.rec-wave i { width: 3px; height: 100%; background: #e63946; border-radius: 2px; animation: waveBar 0.8s ease-in-out infinite alternate; }
+.rec-wave i:nth-child(2) { animation-delay: 0.15s; height: 60%; }
+.rec-wave i:nth-child(3) { animation-delay: 0.3s; height: 90%; }
+.rec-wave i:nth-child(4) { animation-delay: 0.45s; height: 40%; }
+.rec-wave i:nth-child(5) { animation-delay: 0.6s; height: 75%; }
+@keyframes waveBar { 100% { height: 25%; } }
+
+.btn-sm { padding: 8px 16px; font-size: 13px; }
+.btn-xs { padding: 6px 12px; font-size: 12px; border-radius: 8px; }
+.btn-danger { color: #b3402a !important; }
+.btn-danger:hover { background: #fff0f0 !important; }
+
+/* Accordion for Add-ons */
+.accordion { margin-top: 18px; border-top: 1px dashed var(--line); padding-top: 14px; }
+.acc-toggle {
+  background: none;
+  color: var(--teal-d);
+  font-weight: 700;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  width: 100%;
+  text-align: left;
+}
+.acc-toggle:hover { text-decoration: underline; }
+.acc-body { margin-top: 14px; }
+.term-input-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.term-input-row span { font-size: 14px; color: var(--teal); font-weight: bold; width: 18px; }
+.term-input-row input { flex: 1; padding: 8px 12px; font-size: 13.5px; }
+
+.addon-card {
+  background: #fff;
+  border: 1px solid var(--mint);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+.addon-title { font-weight: 700; font-size: 14.5px; display: flex; align-items: center; gap: 6px; margin-bottom: 6px; color: var(--ink); }
+.addon-desc { font-size: 12.5px; color: var(--mut); margin-bottom: 12px; }
+
+/* Witness Picker */
+.witness-options { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.witness-chip {
+  background: #fbfefd;
+  border: 1.5px solid var(--mint);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.witness-chip.active { background: var(--teal); color: #fff; border-color: var(--teal); }
+
+/* Envelope Page */
+#pg1 { display: grid; place-items: center; text-align: center; cursor: pointer; }
+.envelope { position: relative; width: min(86vw, 440px); height: 240px; margin: 60px auto 0; }
+.letter {
+  position: absolute;
+  left: 5%;
+  right: 5%;
+  top: -70px;
+  height: 210px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+  transform: rotate(-1deg);
+  z-index: 1;
+  transition: transform 0.3s ease;
+}
+.envelope:hover .letter { transform: rotate(-1deg) translateY(-8px); }
+.letter h2 { font-family: Caveat; font-size: 34px; font-weight: 600; color: var(--ink); }
+.letter p { font-family: Caveat; font-size: 23px; color: var(--teal-d); line-height: 1.3; }
+.front {
+  position: absolute;
+  inset: 60px 0 0;
+  background: var(--mint);
+  border: 3px solid rgba(0,0,0,0.15);
+  border-radius: 8px 8px 22px 22px;
+  z-index: 2;
+  clip-path: polygon(0 0, 50% 48%, 100% 0, 100% 100%, 0 100%);
+}
+.front::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.45), transparent);
+}
+.stamp {
+  position: absolute;
+  left: 6%;
+  bottom: 44px;
+  z-index: 3;
+  border: 2px dashed var(--teal);
+  color: var(--teal-d);
+  padding: 6px 12px;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  transform: rotate(-6deg);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.85);
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.heart {
+  position: absolute;
+  left: 50%;
+  top: 132px;
+  width: 52px;
+  margin-left: -26px;
+  z-index: 3;
+  font-size: 52px;
+  line-height: 1;
+  color: var(--gold);
+  text-shadow: 0 2px 0 #fff;
+  transition: transform 0.2s;
+}
+.envelope:hover .heart { transform: scale(1.15); }
+.cat { position: absolute; right: -24px; bottom: -12px; width: 84px; max-height: 84px; object-fit: contain; z-index: 4; pointer-events: none; transition: transform 0.25s ease; }
+.tap { margin-top: 70px; letter-spacing: 0.3em; font-size: 13px; color: var(--teal-d); animation: pulse 2s infinite; font-weight: 600; }
+@keyframes pulse { 50% { opacity: 0.35; } }
+
+/* Passcode Lock Modal */
+#passcodeModal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(5px);
+  display: grid;
+  place-items: center;
+  z-index: 50;
+  padding: 20px;
+}
+.passcode-card {
+  background: #fff;
+  border-radius: 24px;
+  padding: 32px 24px;
+  width: min(92vw, 400px);
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  animation: popIn 0.3s ease;
+}
+@keyframes popIn { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+.lock-icon { font-size: 44px; margin-bottom: 8px; }
+.question-badge {
+  background: var(--bg);
+  border: 1px dashed var(--teal);
+  border-radius: 12px;
+  padding: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 15px;
+  margin: 14px 0 8px;
+}
+.passcode-hint { font-size: 13px; color: var(--mut); margin-bottom: 14px; font-style: italic; }
+.passcode-err { color: #b3402a; font-size: 13px; min-height: 18px; margin: 8px 0; font-weight: 500; }
+
+/* Viewer Pages */
+.sec { max-width: 900px; margin: 0 auto; padding: 50px 20px; text-align: center; }
+.eyebrow { font-size: 13px; color: var(--peach); font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+.title { font-size: clamp(32px, 7vw, 60px); margin: 10px 0 16px; }
+.sub { font-size: clamp(28px, 5vw, 42px); }
+.ribbon {
+  display: inline-block;
+  background: var(--teal);
+  color: #fff;
+  padding: 12px 30px 12px 40px;
+  font-family: Caveat;
+  font-size: 26px;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 16px 50%);
+}
+.hero { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; margin-top: 36px; }
+.polaroid {
+  background: #fff;
+  padding: 14px;
+  box-shadow: 0 14px 34px rgba(0,0,0,0.12);
+  transform: rotate(-2.5deg);
+  position: relative;
+  border-radius: 4px;
+}
+.polaroid img { width: 100%; display: block; aspect-ratio: 1; object-fit: cover; border-radius: 2px; }
+.polaroid::before, .polaroid::after { content: ""; position: absolute; width: 80px; height: 26px; background: rgba(0,0,0,0.08); }
+.polaroid::before { top: -12px; left: -24px; transform: rotate(-35deg); }
+.polaroid::after { bottom: -10px; right: -24px; transform: rotate(-35deg); }
+.msg {
+  background: #fff;
+  border-radius: 22px;
+  padding: 28px;
+  font-size: 19px;
+  color: #3b505c;
+  text-align: left;
+  box-shadow: 0 14px 40px rgba(0,0,0,0.08);
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+.minis {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 48px;
+}
+.minis .mini-card {
+  width: 190px;
+  height: 190px;
+  background: #fff;
+  padding: 8px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+  cursor: pointer;
+  border: 1px solid rgba(0,0,0,0.04);
+}
+.minis .mini-card:nth-child(1) { transform: rotate(-1.5deg); }
+.minis .mini-card:nth-child(2) { transform: translateY(10px) rotate(2deg); }
+.minis .mini-card:nth-child(3) { transform: rotate(-2deg); }
+.minis .mini-card:nth-child(1):hover { transform: scale(1.06) rotate(-1deg); box-shadow: 0 12px 28px rgba(0,0,0,0.16); }
+.minis .mini-card:nth-child(2):hover { transform: translateY(8px) scale(1.06) rotate(1deg); box-shadow: 0 12px 28px rgba(0,0,0,0.16); }
+.minis .mini-card:nth-child(3):hover { transform: scale(1.06) rotate(-0.5deg); box-shadow: 0 12px 28px rgba(0,0,0,0.16); }
+
+.minis img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  display: block;
+  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.minis img.changing {
+  opacity: 0;
+  transform: scale(0.88);
+}
+
+/* Wall */
+.wall { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 30px; }
+.flip { aspect-ratio: 3/4; perspective: 900px; background: none; padding: 0; position: relative; cursor: pointer; }
+.flip > div { position: relative; width: 100%; height: 100%; transition: transform 0.7s; transform-style: preserve-3d; }
+.flip.on > div { transform: rotateY(180deg); }
+.flip figure, .flip .back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  background: #fff;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.1);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.flip img { width: 100%; height: 100%; object-fit: cover; }
+.flip .back {
+  transform: rotateY(180deg);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  font-family: Caveat;
+  font-size: 24px;
+  color: var(--teal-d);
+  background: repeating-linear-gradient(#fff 0 34px, #e8f1ed 34px 35px);
+  text-align: center;
+}
+.pin {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin-left: -8px;
+  border-radius: 50%;
+  background: var(--gold);
+  z-index: 2;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+}
+
+/* Player */
+.player {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  background: #fff;
+  border-radius: 26px;
+  padding: 16px 22px 16px 16px;
+  box-shadow: 0 14px 40px rgba(0,0,0,0.08);
+  max-width: 560px;
+  margin: 34px auto 0;
+  text-align: left;
+}
+.player img { width: 92px; height: 92px; object-fit: cover; border-radius: 16px; flex: none; }
+.pm { flex: 1; min-width: 0; }
+.now { font-size: 11.5px; letter-spacing: 0.2em; color: var(--peach); font-weight: 700; text-transform: uppercase; }
+.pm h3 { font-family: Fraunces, serif; font-size: 23px; margin: 2px 0; }
+.pm small { color: var(--mut); font-size: 14px; }
+.ctl { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+.play {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--teal);
+  color: #fff;
+  font-size: 15px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  transition: background-color 0.2s, transform 0.15s;
+}
+.play:hover { background: var(--teal-d); transform: scale(1.05); }
+.bar { flex: 1; height: 8px; border-radius: 99px; background: var(--mint); cursor: pointer; overflow: hidden; position: relative; }
+.bar i { display: block; height: 100%; width: 0; background: var(--teal); border-radius: 99px; }
+.tm { font-size: 12.5px; color: var(--mut); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.hint { font-size: 23px; margin-top: 16px; }
+.albumBtn { margin-top: 22px; }
+
+/* Certificate */
+.cert {
+  position: relative;
+  background: #fffdf6;
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 18px 50px rgba(0,0,0,0.12);
+  transform: rotate(-0.5deg);
+  margin-top: 26px;
+}
+.cert-in { border: 3px double var(--gold); padding: 30px 20px 26px; position: relative; }
+.cert .k { font-size: 12px; letter-spacing: 0.25em; color: var(--peach); font-weight: 700; text-transform: uppercase; }
+.cert h2 { font-size: clamp(24px, 5.5vw, 36px); margin: 6px 0; }
+.cert .who {
+  font-family: Caveat;
+  font-size: clamp(34px, 8vw, 48px);
+  color: var(--teal-d);
+  border-bottom: 2px dashed var(--teal);
+  display: inline-block;
+  padding: 0 14px;
+  margin: 4px 0;
+  max-width: 100%;
+  word-break: break-word;
+}
+.cph {
+  width: 130px;
+  height: 130px;
+  margin: 18px auto 6px;
+  border-radius: 50%;
+  border: 5px solid #fff;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15), 0 0 0 3px var(--gold);
+  object-fit: cover;
+  display: block;
+}
+.terms { list-style: none; padding: 0; text-align: left; max-width: 520px; margin: 14px auto 0; font-size: 15.5px; }
+.terms li { padding: 9px 0 9px 30px; position: relative; border-bottom: 1px dotted var(--line); }
+.terms li::before { content: "✿"; position: absolute; left: 6px; color: var(--teal); }
+.sigs { display: flex; gap: 18px; margin-top: 24px; align-items: flex-end; }
+.sigs div { flex: 1; min-width: 0; }
+.sigs b {
+  display: block;
+  font-family: Caveat;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--teal-d);
+  border-bottom: 2px solid var(--ink);
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sigs small { font-size: 12px; color: var(--mut); }
+.witness-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 6px;
+  border: 1.5px solid var(--gold);
+}
+.seal {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  transform: rotate(12deg);
+  box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--gold);
+  text-align: center;
+  line-height: 1.1;
+}
+
+/* Voice Note Cassette Player in Viewer */
+.retro-cassette {
+  background: #2b3a42;
+  color: #fff;
+  border-radius: 20px;
+  padding: 16px 20px;
+  max-width: 520px;
+  margin: 28px auto 0;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-align: left;
+}
+.cassette-spool-box {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  background: #1a242a;
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+  flex: none;
+}
+.retro-cassette.playing .cassette-spool-box {
+  animation: spin 3s linear infinite;
+}
+.cassette-info { flex: 1; min-width: 0; }
+.cassette-tag { font-size: 11px; font-weight: 700; letter-spacing: 0.15em; color: var(--gold); text-transform: uppercase; }
+.cassette-title { font-family: Fraunces, serif; font-size: 18px; margin: 2px 0 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cassette-ctl { display: flex; align-items: center; gap: 10px; }
+.cassette-play {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--teal);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  flex: none;
+}
+.cassette-time { font-size: 12px; color: #a0b2bc; font-variant-numeric: tabular-nums; }
+
+/* Scratch Cards Section */
+.scratch-section { margin-top: 48px; }
+.scratch-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px; }
+.scratch-card-box {
+  position: relative;
+  aspect-ratio: 16/10;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.12);
+  background: #fff;
+}
+.scratch-content {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: linear-gradient(135deg, #fffdf8, #fff1f3);
+  text-align: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--teal-d);
+  line-height: 1.4;
+  user-select: none;
+}
+.scratch-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: none;
+}
+.scratch-canvas:active { cursor: grabbing; }
+
+/* Letter with Pinned Photos */
+.letter2 { position: relative; margin-top: 44px; }
+.note {
+  --lh: 40px;
+  position: relative;
+  margin-top: 0;
+  padding: 120px 28px 140px 40px;
+  line-height: var(--lh);
+  background: #fff repeating-linear-gradient(#fff 0 calc(var(--lh) - 1px), #e3eeea calc(var(--lh) - 1px) var(--lh));
+  border-radius: 10px;
+  box-shadow: 0 14px 40px rgba(0,0,0,0.08);
+  text-align: left;
+  font-family: Caveat;
+  font-size: 27px;
+  white-space: pre-wrap;
+}
+.note .sig { font-size: 36px; color: var(--teal-d); text-decoration: underline wavy var(--teal); text-underline-offset: 8px; }
+.pp { position: absolute; width: min(30vw, 130px); background: #fff; padding: 6px 6px 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.18); z-index: 2; }
+.pp img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+.pp::before {
+  content: "";
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+}
+.pa { top: -24px; left: -8px; transform: rotate(-7deg); }
+.pb { top: -16px; right: -8px; transform: rotate(6deg); }
+.pc { bottom: -22px; right: 16px; transform: rotate(-4deg); }
+.cat2 { position: absolute; left: 14px; bottom: -18px; width: 80px; max-height: 80px; object-fit: contain; z-index: 3; transform: rotate(-6deg); pointer-events: none; transition: transform 0.25s ease; }
+a.btn { display: inline-block; text-decoration: none; }
+
+/* Nav */
+#nav {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(8px);
+  padding: 8px 12px;
+  border-radius: 999px;
+  box-shadow: 0 8px 26px rgba(0,0,0,0.15);
+  z-index: 10;
+}
+#nav .btn { padding: 9px 20px; }
+#dots { display: flex; gap: 7px; }
+#dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--mint); transition: all 0.2s; }
+#dots i.on { background: var(--teal); transform: scale(1.3); }
+.nv { visibility: hidden; }
+.nv.show { visibility: visible; }
+
+/* Modal */
+#modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: grid; place-items: center; z-index: 40; padding: 20px; }
+.mbox { background: #fff; border-radius: 24px; padding: 30px; width: min(94vw, 440px); text-align: center; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
+.mbox h2 { font-size: 28px; margin-bottom: 8px; }
+.mbox p { color: var(--mut); font-size: 14px; }
+.x { position: absolute; top: 12px; right: 16px; background: none; font-size: 26px; color: var(--mut); cursor: pointer; line-height: 1; }
+.big { font-family: Fraunces, serif; font-size: 34px; margin: 14px 0; color: var(--teal-d); }
+#qr { display: flex; justify-content: center; margin: 16px 0; }
+#qr canvas, #qr img { border: 4px solid #fff; border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,0.1); }
+.link { margin: 10px 0 16px; padding: 10px; background: var(--bg); border-radius: 12px; word-break: break-all; font-size: 13px; border: 1px solid var(--mint); }
+.btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+@media (max-width: 700px) {
+  .hero { grid-template-columns: 1fr; }
+  .wall { grid-template-columns: repeat(2, 1fr); }
+  .scratch-grid { grid-template-columns: 1fr; }
+  .row { grid-template-columns: 1fr; }
+  .minis { gap: 10px; }
+  .minis .mini-card { width: 29vw; height: 29vw; padding: 5px; }
+  .minis img { width: 100%; height: 100%; }
+  .cat2 { width: 60px; }
+  .player { padding: 12px; gap: 12px; }
+  .player img { width: 72px; height: 72px; }
+  .pm h3 { font-size: 20px; }
+  .pm small { font-size: 13px; }
+  .play { width: 40px; height: 40px; }
+  .note { --lh: 32px; font-size: 22px; padding: 110px 18px 130px 22px; }
+  .letter2 { margin-left: 4px; margin-right: 4px; }
+  .cert-in { padding: 24px 14px 20px; }
+  .seal { width: 50px; height: 50px; font-size: 9px; }
+  .meme-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Memory Wall Customizer & Viral Meme Library */
+.memory-wall-customizer {
+  margin-top: 24px;
+  background: #fdfefe;
+  border: 1.5px solid var(--line);
+  border-radius: 20px;
+  padding: 18px 20px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+}
+.wall-cust-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed var(--line);
+}
+.wall-cust-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.badge-mini {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--mint);
+  color: var(--teal-d);
+  letter-spacing: 0.05em;
+}
+.wall-slots-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.wall-slot-card {
+  background: #fff;
+  border: 1.5px solid var(--line);
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  position: relative;
+}
+.wall-slot-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  border-color: var(--teal);
+}
+.slot-preview-wrap {
+  width: 100px;
+  flex: none;
+  text-align: center;
+  position: relative;
+}
+.slot-preview-polaroid {
+  background: #fff;
+  padding: 5px 5px 14px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  border: 1px solid #ebebeb;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.slot-preview-polaroid:hover {
+  transform: scale(1.04);
+}
+.slot-pin {
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 10px;
+  background: var(--gold);
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  z-index: 2;
+}
+.slot-preview-img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 4px;
+  display: block;
+}
+.slot-badge-type {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--teal-d);
+  margin-top: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 105px;
+  display: block;
+}
+.slot-details {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.slot-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.slot-card-num {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0.04em;
+}
+.slot-note-area {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 13.5px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  resize: vertical;
+  min-height: 52px;
+  line-height: 1.4;
+  color: var(--ink);
+}
+.slot-note-area:focus {
+  outline: none;
+  border-color: var(--teal);
+  background: #fff;
+}
+@media (max-width: 520px) {
+  .wall-slot-card {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+  .slot-preview-wrap {
+    margin: 0 auto;
+  }
+  .slot-btn-row {
+    justify-content: center;
+  }
+}
+.slot-btn-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.slot-btn-row .btn-xs {
+  font-size: 11.5px;
+  padding: 4px 8px;
+}
+
+/* Meme Modal */
+#memeModal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(6px);
+  display: grid;
+  place-items: center;
+  z-index: 100;
+  padding: 20px;
+  overflow-y: auto;
+}
+.meme-modal-box {
+  background: #fff;
+  border-radius: 24px;
+  padding: 28px 24px;
+  width: min(94vw, 840px);
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+  animation: popIn 0.25s ease;
+}
+.meme-modal-head {
+  text-align: center;
+  margin-bottom: 16px;
+  flex: none;
+}
+.meme-modal-head h2 {
+  font-size: 26px;
+  margin: 6px 0 2px;
+}
+.meme-modal-head p {
+  color: var(--mut);
+  font-size: 14px;
+  margin: 0 0 14px;
+}
+.meme-filter-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.filter-chip {
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line);
+  background: #fff;
+  color: var(--mut);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.filter-chip.active, .filter-chip:hover {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: #fff;
+}
+.meme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 14px;
+  overflow-y: auto;
+  padding: 6px 4px 14px;
+  flex: 1;
+}
+.meme-item {
+  background: #fff;
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  position: relative;
+}
+.meme-item:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  border-color: var(--teal);
+}
+.meme-item.selected {
+  border-color: var(--teal);
+  background: #f0f8f5;
+  box-shadow: 0 0 0 2px var(--teal);
+}
+.meme-item-img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
+}
+.meme-item-meta {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.meme-item-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.25;
+}
+.meme-item-cat {
+  font-size: 10.5px;
+  color: var(--teal-d);
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.meme-select-btn {
+  margin-top: 6px;
+  padding: 5px 8px;
+  font-size: 11px;
+  border-radius: 8px;
+  background: var(--mint);
+  color: var(--teal-d);
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.meme-item:hover .meme-select-btn {
+  background: var(--teal);
+  color: #fff;
+}
+</style>
+</head>
+<body>
+
+<main id="pg0" class="page wrap">
+  <div class="head">
+    <span class="badge-tag" id="formBadge">✨ All-in-One E-Card Creator ✨</span>
+    <p class="hand" id="formHand">make someone's day special</p>
+    <h1 id="formH1">Create a little corner of the internet</h1>
+    
+    <!-- Event Picker -->
+    <div class="event-picker" id="eventPicker">
+      <button type="button" class="event-btn active" data-event="boyfriend">👦 Boyfriend's Day</button>
+      <button type="button" class="event-btn" data-event="girlfriend">👧 Girlfriend's Day</button>
+      <button type="button" class="event-btn" data-event="bestfriend">👯‍♀️ Best Friend</button>
+      <button type="button" class="event-btn" data-event="valentines">💖 Valentine's Day</button>
+      <button type="button" class="event-btn" data-event="missyou">✈️ I Miss You</button>
+      <button type="button" class="event-btn" data-event="anniversary">💍 Anniversary</button>
+      <button type="button" class="event-btn" data-event="birthday">🎂 Birthday</button>
+      <button type="button" class="event-btn" data-event="custom">✨ Custom Event</button>
+    </div>
+
+    <!-- Vibe Selector (Point 6) -->
+    <div class="vibe-row">
+      <span class="vibe-label">🎭 Relationship Vibe:</span>
+      <button type="button" class="vibe-btn active" data-vibe="romantic">💖 Romantic &amp; Soft</button>
+      <button type="button" class="vibe-btn" data-vibe="playful">🤣 Playful &amp; Roasty</button>
+      <button type="button" class="vibe-btn" data-vibe="nostalgic">🥺 Nostalgic &amp; Deep</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div id="customEventRow" class="hidden" style="margin-bottom:16px;">
+      <label for="customEventName">Event Name / Occasion</label>
+      <input type="text" id="customEventName" placeholder="e.g. Happy Graduation or Just Thinking of You">
+    </div>
+
+    <div class="row">
+      <div>
+        <label for="sender" id="senderLabel">Your name</label>
+        <input type="text" id="sender" maxlength="30" placeholder="Priya">
+      </div>
+      <div>
+        <label for="receiver" id="receiverLabel">Recipient's name</label>
+        <input type="text" id="receiver" maxlength="30" placeholder="Rahul">
+      </div>
+    </div>
+
+    <label id="picsLabel">Three photos of you two (Cover, Vinyl &amp; Note)</label>
+    <div class="pics">
+      <div class="pic" id="pbox0"><span>+ photo 1</span><input type="file" id="pic0" accept="image/*"></div>
+      <div class="pic" id="pbox1"><span>+ photo 2</span><input type="file" id="pic1" accept="image/*"></div>
+      <div class="pic" id="pbox2"><span>+ photo 3</span><input type="file" id="pic2" accept="image/*"></div>
+    </div>
+
+    <!-- The Memory Wall (6 Flip Photos & 25+ Viral Meme Library) -->
+    <div class="memory-wall-customizer">
+      <div class="wall-cust-header">
+        <div>
+          <label style="margin:0;font-size:16px;display:flex;align-items:center;gap:6px;">
+            🖼️ The Memory Wall (6 Flip Cards)
+            <span class="badge-mini">25 Viral Memes</span>
+          </label>
+          <p class="field-hint" style="margin:4px 0 0;">
+            Choose from 25+ viral wholesome memes or upload personal photos. Every photo has your note on the back!
+          </p>
+        </div>
+        <div class="wall-cust-actions">
+          <button type="button" class="btn ghost btn-xs" id="browseAllMemesBtn">🐾 Browse Meme Library (25)</button>
+          <button type="button" class="btn ghost btn-xs" id="shuffleMemesBtn" title="Pick 6 random viral memes">🎲 Shuffle Memes</button>
+          <button type="button" class="btn ghost btn-xs" id="resetWallMemesBtn" title="Reset to original viral memes">↺ Reset</button>
+        </div>
+      </div>
+
+      <!-- 6 Flip Cards Grid in Creator Form -->
+      <div class="wall-slots-grid" id="wallSlotsGrid"></div>
+    </div>
+
+    <!-- Music Upload Section from Device -->
+    <div class="music-upload-section" id="songDropZone">
+      <label for="songFileInput">🎵 Add Background Song from Device (Optional)</label>
+      <p class="field-hint">Upload an MP3, M4A, or WAV file from your phone/computer to play during their surprise.</p>
+      
+      <input type="file" id="songFileInput" accept="audio/*,.mp3,.m4a,.wav,.aac,.ogg,.opus,.flac" style="display:none">
+      
+      <div id="noSongView" class="song-empty-state">
+        <div class="song-icon">🎶</div>
+        <div>
+          <button type="button" class="btn ghost btn-sm" id="pickSongBtn">📁 Choose Audio File</button>
+          <div class="song-subhint">or drag &amp; drop audio file here</div>
+        </div>
+      </div>
+
+      <div id="hasSongView" class="song-selected-state hidden">
+        <div class="song-disc-icon">💿</div>
+        <div class="song-meta">
+          <div class="song-filename" id="songFileName">MySong.mp3</div>
+          <div class="song-filesize" id="songFileSize">3.4 MB</div>
+        </div>
+        <div class="song-controls">
+          <button type="button" class="btn ghost btn-xs" id="testPlaySongBtn" title="Test play">▶ Listen</button>
+          <button type="button" class="btn ghost btn-xs btn-danger" id="removeSongBtn" title="Remove song">✕ Remove</button>
+        </div>
+      </div>
+
+      <div style="margin-top: 10px;">
+        <input type="text" id="songTitleInput" maxlength="50" placeholder="Song title on player (optional, e.g. 'Our Song' or 'Until I Found You')">
+      </div>
+    </div>
+
+    <!-- Voice Note Section (Point 1 - Optional) -->
+    <div class="voice-note-section">
+      <label for="voiceRecordBtn">🎙️ Record a Voice Message from Your Heart (Optional)</label>
+      <p class="field-hint" id="voicePromptText">Record your voice so they can hear you speak while reading their surprise.</p>
+
+      <div id="voiceEmptyState" class="voice-empty-state">
+        <div class="voice-icon">🎙️</div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <button type="button" class="btn btn-sm" id="voiceRecordBtn">🎙️ Record Voice Note</button>
+          <span style="font-size:12px;color:var(--mut);">or</span>
+          <button type="button" class="btn ghost btn-sm" id="voiceUploadBtn">📁 Upload Audio Memo</button>
+          <input type="file" id="voiceFileInput" accept="audio/*" style="display:none">
+        </div>
+      </div>
+
+      <div id="voiceRecordingState" class="rec-pulse-row hidden">
+        <span class="rec-dot"></span>
+        <span class="rec-timer" id="recTimer">00:00 / 01:00</span>
+        <div class="rec-wave"><i></i><i></i><i></i><i></i><i></i></div>
+        <button type="button" class="btn btn-sm btn-danger" id="voiceStopBtn">⏹ Stop &amp; Save</button>
+      </div>
+
+      <div id="voiceDoneState" class="voice-selected-state hidden">
+        <div style="font-size:26px;">📼</div>
+        <div class="voice-meta">
+          <div class="voice-filename" id="voiceRecordedName">Voice Memo Attached</div>
+          <div class="voice-filesize" id="voiceRecordedDuration">Ready to play</div>
+        </div>
+        <div class="voice-controls">
+          <button type="button" class="btn ghost btn-xs" id="testVoicePlayBtn">▶ Play</button>
+          <button type="button" class="btn ghost btn-xs btn-danger" id="voiceRemoveBtn">✕ Remove</button>
+        </div>
+      </div>
+
+      <div style="margin-top:10px;">
+        <input type="text" id="voiceTitleInput" maxlength="50" placeholder="Voice note caption (optional, e.g. 'Listen when you miss me at 2 AM')">
+      </div>
+    </div>
+
+    <label for="message">Your personal message</label>
+    <textarea id="message" rows="4" maxlength="500" placeholder="Write something sweet, funny, or memorable..."></textarea>
+
+    <!-- Deep Customization & Interactive Add-ons (Points 2, 3, 7) -->
+    <div class="accordion">
+      <button type="button" class="acc-toggle" id="accToggle">🎁 Special Add-ons: Secret Passcode, Scratch Coupons &amp; Witness (Optional) ▾</button>
+      
+      <div class="acc-body hidden" id="accBody">
+        
+        <!-- Inside Joke / Passcode Lock (Point 2) -->
+        <div class="addon-card">
+          <div class="addon-title">🔐 Secret Inside Joke / Passcode Lock (Optional)</div>
+          <div class="addon-desc">Locks the envelope until the recipient enters the correct answer to your inside joke or secret memory!</div>
+          <label style="margin-top:4px;">Secret Question</label>
+          <input type="text" id="secretQuestionInput" placeholder="e.g. Where did we first meet?">
+          <div class="row" style="margin-top:8px;">
+            <div>
+              <label>Correct Answer</label>
+              <input type="text" id="secretAnswerInput" placeholder="e.g. Cafe Coffee Day">
+            </div>
+            <div>
+              <label>Helpful Hint</label>
+              <input type="text" id="secretHintInput" placeholder="e.g. Starts with C...">
+            </div>
+          </div>
+        </div>
+
+        <!-- Scratch-Off Coupons & Promises (Point 3) -->
+        <div class="addon-card">
+          <div class="addon-title">🎟️ Scratch-Off Love Vouchers &amp; Promises (Optional)</div>
+          <div class="addon-desc">Interactive scratch-off cards that the recipient rubs with their finger/mouse to reveal your promises!</div>
+          <div id="scratchInputsBox">
+            <div class="term-input-row"><span>1.</span><input type="text" id="scratchInput0" placeholder="Coupon 1"></div>
+            <div class="term-input-row"><span>2.</span><input type="text" id="scratchInput1" placeholder="Coupon 2"></div>
+            <div class="term-input-row"><span>3.</span><input type="text" id="scratchInput2" placeholder="Coupon 3"></div>
+          </div>
+        </div>
+
+        <!-- Official Witness Picker (Point 7) -->
+        <div class="addon-card">
+          <div class="addon-title">🐾 Official Certificate Witness (Point 7)</div>
+          <div class="addon-desc">Choose who officially signs as the witness on their certificate!</div>
+          <div class="witness-options" id="witnessPicker">
+            <button type="button" class="witness-chip active" data-witness="cat">🐱 The Cat</button>
+            <button type="button" class="witness-chip" data-witness="boka">🌸 Boka</button>
+            <button type="button" class="witness-chip" data-witness="friend">👯 Bestie</button>
+            <button type="button" class="witness-chip" data-witness="cupid">👼 Cupid</button>
+            <button type="button" class="witness-chip" data-witness="moon">🌙 The Moon / Miss You</button>
+            <button type="button" class="witness-chip" data-witness="dog">🐶 Good Doggo</button>
+            <button type="button" class="witness-chip" data-witness="custom">✨ Custom Witness</button>
+          </div>
+          <div class="row">
+            <div>
+              <label>Witness Name / Title</label>
+              <input type="text" id="witnessNameInput" placeholder="the cat (official witness)">
+            </div>
+            <div>
+              <label>Witness / Pet Photo (Optional)</label>
+              <input type="file" id="witnessPhotoInput" accept="image/*">
+            </div>
+          </div>
+        </div>
+
+        <!-- Certificate Duties & Flip Memories -->
+        <div class="addon-card">
+          <div class="addon-title">📜 Certificate Duties &amp; Memory Wall Notes</div>
+          <label for="certTitleInput" style="margin-top:6px;">Certificate Title</label>
+          <input type="text" id="certTitleInput" placeholder="Certified Boyfriend / Girlfriend / Bestie">
+          
+          <label style="margin-top:12px;">Certificate Duties / Rules (5 terms)</label>
+          <div id="termsInputs"></div>
+
+          <label style="margin-top:14px;">Memory Wall Flip Notes (6 cards)</label>
+          <div id="memoriesInputs"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="err" id="err" role="alert"></div>
+    <button class="btn" id="previewBtn" style="width:100%;margin-top:14px">Preview E-Card</button>
+  </div>
+</main>
+
+<!-- Page 1: Envelope & Passcode Lock -->
+<section id="pg1" class="page hidden">
+  <div>
+    <div class="envelope" id="envelopeBox">
+      <div class="letter">
+        <h2 id="envH2">Hey You!</h2>
+        <p id="envP1">I made a little something<br>just for you...</p>
+        <p id="envP2" style="margin-top:8px">happy boyfriend's day ✿</p>
+      </div>
+      <div class="front"></div>
+      <div class="stamp" id="envStamp">HAPPY BOYFRIEND'S DAY</div>
+      <div class="heart" id="envHeart">♥</div>
+      <img class="cat" id="catImg" src="assets/cat.gif" alt="Cute Cat" onerror="this.src='https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3ejQ5bmwwb3ZuamNpZXF1NDV6b3YzbHk2YmF3YWh0OG8wcDc4MzlyNCZlcD12MV9zdGlja2Vyc19yZWxhdGVkJmN0PXM/eAot8Ldr85y3peseC3/giphy.gif'">
+    </div>
+    <p class="tap" id="tapPrompt">TAP ANYWHERE TO BEGIN</p>
+  </div>
+</section>
+
+<!-- Passcode Modal (Point 2) -->
+<div id="passcodeModal" class="hidden">
+  <div class="passcode-card">
+    <div class="lock-icon">🔒</div>
+    <h2>Locked with Love</h2>
+    <p style="font-size:14px;color:var(--mut);margin-top:4px;">Answer our secret inside joke to open:</p>
+    <div class="question-badge" id="passcodeQuestionDisplay">Where was our first date?</div>
+    <div class="passcode-hint" id="passcodeHintDisplay"></div>
+    <input type="text" id="passcodeAnswerInput" placeholder="Your secret answer..." autocomplete="off">
+    <div class="passcode-err" id="passcodeErr"></div>
+    <button class="btn" id="unlockBtn" style="width:100%;margin-top:8px;">Unlock 🔓</button>
+  </div>
+</div>
+
+<!-- Page 2: Hero & Music Player -->
+<section id="pg2" class="page hidden"><div class="sec">
+  <p class="eyebrow" id="vEyebrow">SPECIAL SURPRISE</p>
+  <h1 class="title" id="vTitle"></h1>
+  <span class="ribbon" id="vRibbon"></span>
+  <div class="hero">
+    <div class="polaroid"><img id="heroImg" src="p2.jpeg" alt="Memory"></div>
+    <div class="msg" id="vMsg"></div>
+  </div>
+  <div class="minis" id="minis"></div>
+  
+  <div class="player" id="musicPlayerBox">
+    <img id="pArt" src="assets/mini1.gif" alt="Album Art" onerror="this.src='https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcXJ2dTFuNDRqcWxmMDV6ejZ6MHg5MTlqcG9uYm0wN2lkd2wwN2s3ZyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/QO6gybBh0d4LLTNn1d/giphy.gif'">
+    <div class="pm">
+      <div class="now" id="pNowLabel">NOW PLAYING</div>
+      <h3 id="pSongTitle">Our Song</h3><small id="pSongArtist">the soundtrack of us</small>
+      <div class="ctl"><button class="play" id="pplay" aria-label="Play or pause">▶</button><div class="bar" id="pbar"><i id="pfill"></i></div><span class="tm" id="ptime">0:00 / 0:00</span></div>
+    </div>
+  </div>
+  <p class="hand hint" id="hintText">press play — this melody belongs to us ✿</p>
+  <button class="btn albumBtn" id="albumBtn">see our album →</button>
+</div></section>
+
+<!-- Page 3: Memory Wall -->
+<section id="pg3" class="page hidden"><div class="sec">
+  <p class="eyebrow">THE MEMORY WALL</p>
+  <h2 class="title sub">flip one over</h2>
+  <p class="hand" style="font-size:26px">every photo has something written on the back ✿</p>
+  <div class="wall" id="wall"></div>
+</div></section>
+
+<!-- Page 4: Certificate & Scratch Cards -->
+<section id="pg4" class="page hidden"><div class="sec" style="max-width:640px">
+  <p class="eyebrow" id="certEyebrow">OFFICIALLY OFFICIAL</p>
+  <h2 class="title sub" id="certSectionTitle">the official certificate</h2>
+  
+  <div class="cert" id="certBox"><div class="cert-in">
+    <div class="seal" id="certSeal">OFFICIAL<br>SEAL</div>
+    <p class="k" id="certK">CERTIFICATE OF LOVE</p>
+    <h2 id="certHeading">Certified Special Human</h2>
+    <p id="certIntro">This is to certify that</p>
+    <div class="who" id="cWho"></div>
+    <img class="cph" id="cPh" alt="Photo">
+    <p id="certSubText">is officially recognized with these lifelong privileges &amp; duties:</p>
+    <ul class="terms" id="certTermsList"></ul>
+    <div class="sigs">
+      <div><b id="cFrom"></b><small id="sigFromRole">issued with love by</small></div>
+      <div>
+        <b id="cWitness">
+          <img id="witnessAvatarImg" class="witness-avatar hidden" alt="Witness">
+          <span id="witnessNameText">the cat</span>
+        </b>
+        <small>official witness</small>
+      </div>
+    </div>
+  </div></div>
+
+  <button class="btn" id="dlCert" style="margin-top:26px">Download certificate ⬇</button>
+
+  <!-- Scratch Cards Section (Point 3) -->
+  <div class="scratch-section hidden" id="scratchSection">
+    <p class="eyebrow" style="margin-top:36px;">SCRATCH TO REVEAL</p>
+    <h2 class="title sub" style="font-size:28px;margin:6px 0 12px;">Your Special Promises</h2>
+    <p class="hand" style="font-size:23px;color:var(--teal-d);">rub with your finger or mouse to scratch &amp; reveal ✿</p>
+    <div class="scratch-grid" id="scratchGrid"></div>
+  </div>
+</div></section>
+
+<!-- Page 5: Note, Voice Cassette & Final Wishes -->
+<section id="pg5" class="page hidden"><div class="sec" style="max-width:700px">
+  <p class="hand" style="font-size:24px">✿ one last thing ✿</p>
+  <h2 class="title sub">A Note For You</h2>
+
+  <!-- Voice Note Cassette Player (Point 1) -->
+  <div class="retro-cassette hidden" id="cassetteBox">
+    <div class="cassette-spool-box" id="cassetteSpool">📼</div>
+    <div class="cassette-info">
+      <div class="cassette-tag">VOICE MEMO FROM HEART</div>
+      <div class="cassette-title" id="cassetteTitle">A Voice Note for You</div>
+      <div class="cassette-ctl">
+        <button type="button" class="cassette-play" id="cassettePlayBtn">▶</button>
+        <span class="cassette-time" id="cassetteTime">0:00 / 0:00</span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="letter2">
+    <div class="pp pa"><img id="lp0" alt="Memory 1"></div><div class="pp pb"><img id="lp1" alt="Memory 2"></div><div class="pp pc"><img id="lp2" alt="Memory 3"></div>
+    <div class="note" id="note"></div>
+    <img class="cat2" id="catImg2" src="assets/cat.gif" alt="Cat sticker" onerror="this.src='https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3ejQ5bmwwb3ZuamNpZXF1NDV6b3YzbHk2YmF3YWh0OG8wcDc4MzlyNCZlcD12MV9zdGlja2Vyc19yZWxhdGVkJmN0PXM/eAot8Ldr85y3peseC3/giphy.gif'">
+  </div>
+
+  <a class="btn hidden" id="returnBtn" href="/" style="margin-top:36px">Create Your Own E-Card ✿</a>
+  <div class="genbox hidden" id="genbox">
+    <button class="btn" id="genBtn">Generate QR &amp; Link</button>
+    <p>Happy with it? This uploads everything to your backend and creates the shareable link.</p>
+  </div>
+</div></section>
+
+<!-- Bottom Nav -->
+<nav id="nav" class="hidden">
+  <button class="btn ghost nv" id="back">← Back</button>
+  <div id="dots"><i></i><i></i><i></i><i></i><i></i></div>
+  <button class="btn nv" id="next">Next →</button>
+</nav>
+
+<!-- Modal: QR & Sharing -->
+<div id="modal" class="hidden" role="dialog" aria-modal="true">
+  <div class="mbox">
+    <button class="x" id="mClose" aria-label="Close">×</button>
+    <div id="sPay">
+      <h2>Save &amp; Generate Link</h2>
+      <p>Store your photos and audio safely on the backend server and generate the special link &amp; QR code!</p>
+      <div class="big">Free</div>
+      <button class="btn" id="payBtn" style="width:100%">Save &amp; Generate E-Card</button>
+    </div>
+    <div id="sBusy" class="hidden">
+      <h2>Uploading to backend…</h2>
+      <p>Saving your photos, song, and personal touches safely. Please wait a moment.</p>
+      <div style="margin:20px 0;font-size:32px">⏳</div>
+    </div>
+    <div id="sFail" class="hidden">
+      <h2>Upload failed</h2>
+      <p>Could not save to the backend server.</p>
+      <p id="failMsg" style="margin:10px 0;color:#b3402a"></p>
+      <button class="btn" id="retryBtn">Retry upload</button>
+    </div>
+    <div id="sDone" class="hidden">
+      <h2>It's ready! 🎉</h2>
+      <div id="qr"></div>
+      <div class="link" id="shareLink"></div>
+      <div class="btns">
+        <button class="btn" id="copyBtn">Copy link</button>
+        <button class="btn ghost" id="dlBtn">Save QR</button>
+        <a class="btn ghost" id="openLinkBtn" target="_blank" style="text-decoration:none">Open link ↗</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Viral Meme & Cute Photo Library (25+ options) -->
+<div id="memeModal" class="hidden" role="dialog" aria-modal="true">
+  <div class="meme-modal-box">
+    <button class="x" id="memeModalClose" aria-label="Close">×</button>
+    <div class="meme-modal-head">
+      <span class="badge-tag">🐾 Wholesome Meme Collection</span>
+      <h2 id="memeModalTitle">Viral Memes & Animated GIFs (34 Options)</h2>
+      <p id="memeModalSub">Click any meme or animated GIF to assign it to <b id="targetSlotName">Card 1</b></p>
+      
+      <!-- Filter Tabs -->
+      <div class="meme-filter-tabs" id="memeFilterTabs">
+        <button type="button" class="filter-chip active" data-filter="all">All (34)</button>
+        <button type="button" class="filter-chip" data-filter="animated">✨ Animated GIFs (9)</button>
+        <button type="button" class="filter-chip" data-filter="romantic">💖 Romantic &amp; Love</button>
+        <button type="button" class="filter-chip" data-filter="funny">🤪 Silly &amp; Viral</button>
+        <button type="button" class="filter-chip" data-filter="cute">🐶🐱 Animals &amp; Fluff</button>
+      </div>
+    </div>
+
+    <!-- Scrollable Grid of 25 Images -->
+    <div class="meme-grid" id="memeGrid"></div>
+  </div>
+</div>
+
+<audio id="aud" preload="auto" loop></audio>
+<audio id="voiceAud" preload="auto"></audio>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+<script>
+/* ==========================================================
+   EVENT PRESETS & THEME ENGINE (Points 1, 2, 3, 6, 7)
+========================================================== */
+const EVENT_PRESETS = {
+  boyfriend: {
+    name: "Boyfriend's Day",
+    handTag: "happy boyfriend's day",
+    headline: "Make him a little corner of the internet",
+    senderLabel: "Your name",
+    receiverLabel: "His name",
+    senderPlaceholder: "Priya",
+    receiverPlaceholder: "Rahul",
+    defaultVibe: "romantic",
+    defaultMessage: "Every year this day comes around and I think the same thing: I got so lucky with you. So instead of a simple text, I built you a tiny corner of the internet. Stay a while, there's a bit to see.",
+    theme: {
+      "--bg": "#eaf4f0",
+      "--ink": "#1f3a44",
+      "--teal": "#3f9482",
+      "--teal-d": "#2b6f60",
+      "--mint": "#cfe6df",
+      "--peach": "#e07a5f",
+      "--gold": "#e8a44e",
+      "--line": "#cfe3dc"
+    },
+    envelope: {
+      h2: "Hey You!",
+      p1: "I made a little something<br>just for you...",
+      p2: "happy boyfriend's day ✿",
+      stamp: "HAPPY BOYFRIEND'S DAY",
+      heart: "♥"
+    },
+    viewerEyebrow: "HAPPY BOYFRIEND'S DAY",
+    certificate: {
+      badge: "CERTIFICATE OF BOYFRIENDSHIP",
+      title: "Certified Boyfriend",
+      sub: "is hereby the one and only official boyfriend, with these lifelong duties:",
+      witness: "the cat",
+      terms: [
+        "Chief Banter Officer. Fully responsible for my fun banter. Always. No off days, no 'I'm tired'.",
+        "Always there for me. Replies, rants, random 2am thoughts. All covered.",
+        "Laughs at my jokes. Even the bad ones. Especially the bad ones.",
+        "Snack policy. Shares the good fries. No exceptions.",
+        "Terms: valid forever, non-refundable, non-transferable."
+      ]
+    },
+    memories: [
+      "the day you became my favourite notification.",
+      "this smile is still my weakness.",
+      "we were being idiots and it was perfect.",
+      "you make boring days feel like weekends.",
+      "i'd pick you again. every single time.",
+      "to be continued... forever ✿"
+    ],
+    secretLock: {
+      question: "Where did we have our very first date?",
+      answer: "Cafe",
+      hint: "Think about where we first got coffee..."
+    },
+    scratchCoupons: [
+      "🎟️ 1x Head Massage & Unlimited Cuddles",
+      "🎟️ 1x You Pick the Movie (No Complaints!)",
+      "🎟️ 1x Get Out of 1 Silly Argument Free Pass"
+    ],
+    voicePrompt: "Record a sweet voice note for him...",
+    signoff: "always yours"
+  },
+
+  girlfriend: {
+    name: "Girlfriend's Day",
+    handTag: "happy girlfriend's day ✿",
+    headline: "Make her a little corner of the internet",
+    senderLabel: "Your name",
+    receiverLabel: "Her name",
+    senderPlaceholder: "Aarav",
+    receiverPlaceholder: "Ananya",
+    defaultVibe: "romantic",
+    defaultMessage: "From the moment you came into my life, everything turned softer, brighter, and a million times more fun. You deserve all the princess treatment in the world, starting with this little page built just for you.",
+    theme: {
+      "--bg": "#fff0f3",
+      "--ink": "#4a1525",
+      "--teal": "#d85a7f",
+      "--teal-d": "#a83256",
+      "--mint": "#ffd6e0",
+      "--peach": "#ff758f",
+      "--gold": "#f3a683",
+      "--line": "#fedfe6"
+    },
+    envelope: {
+      h2: "Hey Gorgeous!",
+      p1: "A little surprise made with love<br>just for you...",
+      p2: "happy girlfriend's day ✿",
+      stamp: "HAPPY GIRLFRIEND'S DAY",
+      heart: "💖"
+    },
+    viewerEyebrow: "HAPPY GIRLFRIEND'S DAY",
+    certificate: {
+      badge: "CERTIFICATE OF PRINCESS TREATMENT",
+      title: "World's Best Girlfriend",
+      sub: "is officially certified as the Queen of My Heart, entitled to lifelong royal rights:",
+      witness: "boka",
+      terms: [
+        "Lifetime Princess Treatment. Guaranteed forehead kisses, flowers, and undivided attention.",
+        "Always Right Clause. In any minor debate, please refer to Rule 1: She is always right.",
+        "Warm Hugs On Demand. Mandatory snuggles and soft blanket burritos whenever requested.",
+        "Snack & Boba Immunity. Can steal fries and sips from my cup without objection.",
+        "Terms: loved unconditionally, today, tomorrow, and endlessly."
+      ]
+    },
+    memories: [
+      "the moment you smiled and my heart lost its mind.",
+      "my absolute favorite place in the world is right next to you.",
+      "every silly photo of us is my treasure.",
+      "you make the entire universe softer and prettier.",
+      "falling in love with you was the easiest thing I ever did.",
+      "forever your biggest fan ✿"
+    ],
+    secretLock: {
+      question: "What is my absolute favorite thing about you?",
+      answer: "Your smile",
+      hint: "It lights up the whole room..."
+    },
+    scratchCoupons: [
+      "🎟️ 1x Full Princess Treatment Day (Zero Chores)",
+      "🎟️ 1x Late Night Boba & Dessert Run on Me",
+      "🎟️ 1x Warm Hug & Being Wrapped Like a Burrito"
+    ],
+    voicePrompt: "Leave a voice note telling her she's beautiful...",
+    signoff: "forever yours"
+  },
+
+  bestfriend: {
+    name: "Best Friend / Friendship Day",
+    handTag: "to my partner in crime 👯‍♀️",
+    headline: "A digital shrine for our beautiful chaos",
+    senderLabel: "Your name",
+    receiverLabel: "Bestie's name",
+    senderPlaceholder: "Sam",
+    receiverPlaceholder: "Alex",
+    defaultVibe: "playful",
+    defaultMessage: "We don't say it often because we're busy roasting each other, but I am endlessly grateful for our bond. From unhinged 3 AM calls to bad decisions we'd repeat in a heartbeat, you're stuck with me forever.",
+    theme: {
+      "--bg": "#fefaf0",
+      "--ink": "#283618",
+      "--teal": "#2a9d8f",
+      "--teal-d": "#1d7066",
+      "--mint": "#d8f3dc",
+      "--peach": "#e76f51",
+      "--gold": "#f4a261",
+      "--line": "#faedcd"
+    },
+    envelope: {
+      h2: "Yo Bestie!",
+      p1: "I made a little digital shrine<br>for our mutual chaos...",
+      p2: "happy best friend day ✿",
+      stamp: "CHAOS PARTNER FOR LIFE",
+      heart: "⭐"
+    },
+    viewerEyebrow: "HAPPY BEST FRIEND DAY",
+    certificate: {
+      badge: "CERTIFICATE OF PARTNERSHIP IN CHAOS",
+      title: "Certified Soul Bestie",
+      sub: "is officially recognized as the Chief Partner in Crime with these mutual pacts:",
+      witness: "best friend",
+      terms: [
+        "Chief Gossip Officer. Bound by oath to listen to all voice notes, screenshots, and life rants.",
+        "3 AM Emergency Hotline. Available for panic updates, memes, and random life theories.",
+        "Mutual Roasting Immunity. We insult each other daily, but we defend each other fiercely against anyone else.",
+        "Shared Brain Cell Policy. We agree to never judge each other's questionable life choices.",
+        "Terms: best friends forever, because you already know too many secrets to ever be set free."
+      ]
+    },
+    memories: [
+      "remember when we thought this was a brilliant idea?",
+      "the hardest laughs are always the ones with you.",
+      "partners in crime and bad decisions since day one.",
+      "distance means nothing when a bond is this strong.",
+      "thank you for never getting tired of my nonsense.",
+      "stuck with me for life, no refunds ✿"
+    ],
+    secretLock: {
+      question: "What's our most unhinged shared secret?",
+      answer: "Goa trip",
+      hint: "Think about that wild vacation..."
+    },
+    scratchCoupons: [
+      "🎟️ 1x Free Food & Drinks on My Tab",
+      "🎟️ 1x Unfiltered 2 AM Vent Session Pass",
+      "🎟️ 1x Emergency Escape Call from a Bad Date"
+    ],
+    voicePrompt: "Record a funny roast or heartfelt voice note...",
+    signoff: "your favorite human"
+  },
+
+  valentines: {
+    name: "Valentine's Day",
+    handTag: "to my forever valentine ♥",
+    headline: "A love letter hidden in the internet",
+    senderLabel: "Your name",
+    receiverLabel: "Valentine's name",
+    senderPlaceholder: "Dev",
+    receiverPlaceholder: "Riya",
+    defaultVibe: "romantic",
+    defaultMessage: "Out of all the people and places in this big world, my favorite place is right beside you. Thank you for filling every single day with butterflies, comfort, and sweet memories. Happy Valentine's Day, my love.",
+    theme: {
+      "--bg": "#fdf0ed",
+      "--ink": "#3d0c11",
+      "--teal": "#c9184a",
+      "--teal-d": "#800f2f",
+      "--mint": "#ffccd5",
+      "--peach": "#ff4d6d",
+      "--gold": "#d4a373",
+      "--line": "#fcd5ce"
+    },
+    envelope: {
+      h2: "My Valentine ♥",
+      p1: "A secret love letter hidden<br>in the internet for you...",
+      p2: "happy valentine's day ✿",
+      stamp: "VALENTINE FOR LIFE",
+      heart: "💖"
+    },
+    viewerEyebrow: "HAPPY VALENTINE'S DAY",
+    certificate: {
+      badge: "CERTIFICATE OF ETERNAL LOVE",
+      title: "Certified Ultimate Valentine",
+      sub: "is hereby granted supreme soulmate rights & romantic responsibilities:",
+      witness: "cupid himself",
+      terms: [
+        "Endless Kisses Guarantee. Redeemable anywhere, anytime, without any expiration date.",
+        "Infinite Cuddle Vouchers. Priority access to cozy blankets, hand holds, and sweet forehead kisses.",
+        "Decision Helper Pass. For when you take 40 minutes deciding where or what to eat.",
+        "Stargazing & Movie Nights. Bound to share sweet desserts and cozy movie marathon evenings.",
+        "Terms: valid for this lifetime and all lifetimes to follow."
+      ]
+    },
+    memories: [
+      "you are my favorite thought every single morning.",
+      "out of everyone in the world, it will always be you.",
+      "the sweet quiet moments with you mean everything.",
+      "you feel like home in human form.",
+      "i love you more than all words could ever express.",
+      "happy valentine's day, my forever love ✿"
+    ],
+    secretLock: {
+      question: "What song makes me think of you every single time?",
+      answer: "Perfect",
+      hint: "Our romantic song..."
+    },
+    scratchCoupons: [
+      "🎟️ 1x Candlelight Dinner & Slow Dance at Home",
+      "🎟️ 1x 100 Free Kisses (No Expiration Date)",
+      "🎟️ 1x Weekend Trip Planned Entirely by Me"
+    ],
+    voicePrompt: "Record a secret romantic love message...",
+    signoff: "with all my heart"
+  },
+
+  missyou: {
+    name: "I Miss You / Long Distance",
+    handTag: "miles apart, close at heart ✈️",
+    headline: "Sending a warm hug through the screen",
+    senderLabel: "Your name",
+    receiverLabel: "Their name",
+    senderPlaceholder: "Maya",
+    receiverPlaceholder: "Arjun",
+    defaultVibe: "nostalgic",
+    defaultMessage: "Distance might keep us from hugging right now, but it doesn't change a single beat of how much I care about you. Counting down every second until we meet again. Here's a little reminder of how special you are to me.",
+    theme: {
+      "--bg": "#f3f1f8",
+      "--ink": "#241c38",
+      "--teal": "#6c5ce7",
+      "--teal-d": "#4834d4",
+      "--mint": "#dcd6f7",
+      "--peach": "#a29bfe",
+      "--gold": "#fdcb6e",
+      "--line": "#e2dcf7"
+    },
+    envelope: {
+      h2: "Hey You...",
+      p1: "Sending a warm digital hug<br>across the miles...",
+      p2: "missing you so much ✿",
+      stamp: "DISTANCE MEANS NOTHING",
+      heart: "✨"
+    },
+    viewerEyebrow: "THINKING OF YOU ALWAYS",
+    certificate: {
+      badge: "CERTIFICATE OF MILES & MEMORIES",
+      title: "Certified Most Missed Person",
+      sub: "is officially certified as deeply missed with these long-distance treaties:",
+      witness: "the moon between us",
+      terms: [
+        "Distance-Proof Heart. Physical miles have zero power over what we share.",
+        "Mandatory Goodnight Protocol. Daily night texts and voice notes are non-negotiable.",
+        "Next Reunion Clause. The moment we meet again, a minimum 10-minute tight hug is required.",
+        "Virtual Hug Dispensary. Unlimited virtual embraces whenever the days feel long.",
+        "Terms: countdown active until there is zero distance between us."
+      ]
+    },
+    memories: [
+      "missing you a little extra today and every single day.",
+      "looking at pictures of us until I get to hold your hand again.",
+      "every mile between us is worth it for you.",
+      "can't wait for our next sweetest reunion hug.",
+      "my heart is right wherever you are.",
+      "see you soon, my favorite human ✿"
+    ],
+    secretLock: {
+      question: "Where are we meeting next?",
+      answer: "Airport",
+      hint: "Where our reunion hug happens..."
+    },
+    scratchCoupons: [
+      "🎟️ 1x Non-Stop 10-Minute Reunion Hug",
+      "🎟️ 1x Sleep on Facetime Pass (No Hanging Up)",
+      "🎟️ 1x Your Favorite Home-Cooked Meal on Arrival"
+    ],
+    voicePrompt: "Record your voice for when they miss you at 2 AM...",
+    signoff: "missing you always"
+  },
+
+  anniversary: {
+    name: "Anniversary",
+    handTag: "celebrating our love milestone 💍",
+    headline: "Another year of loving you more",
+    senderLabel: "Your name",
+    receiverLabel: "Partner's name",
+    senderPlaceholder: "Kavya",
+    receiverPlaceholder: "Rohan",
+    defaultVibe: "romantic",
+    defaultMessage: "Another year has passed, and loving you keeps getting sweeter and deeper. Looking back at everything we've built, I'd choose you all over again in every single lifetime. Cheers to us and our forever story.",
+    theme: {
+      "--bg": "#f4f7f4",
+      "--ink": "#132a13",
+      "--teal": "#2d6a4f",
+      "--teal-d": "#1b4332",
+      "--mint": "#d8f3dc",
+      "--peach": "#b7e4c7",
+      "--gold": "#d4af37",
+      "--line": "#d5ebd8"
+    },
+    envelope: {
+      h2: "Happy Anniversary!",
+      p1: "Another beautiful chapter with you...<br>open our story so far...",
+      p2: "happy anniversary ✿",
+      stamp: "CELEBRATING US",
+      heart: "💍"
+    },
+    viewerEyebrow: "HAPPY ANNIVERSARY",
+    certificate: {
+      badge: "CERTIFICATE OF EVERLASTING LOVE",
+      title: "Certified Milestone of Love",
+      sub: "is officially celebrated for another year of partnership, laughter, and love:",
+      witness: "destiny itself",
+      terms: [
+        "Still The One. Officially re-affirming that I would choose you over and over again.",
+        "Anniversary Pampering Pass. Deserves special treats, good food, and reminiscing our journey.",
+        "Shared Future Pact. Building our dreams side by side, one day at a time.",
+        "Partnership in Everything. For enduring my mood swings and making every day magical.",
+        "Terms: automatically renewed every year with 100+ year warranty."
+      ]
+    },
+    memories: [
+      "day one with you was amazing, but today is even better.",
+      "thank you for choosing me every single day.",
+      "all our memories feel like a fairytale come true.",
+      "cheers to another year of us being us.",
+      "loving you is the greatest adventure of my life.",
+      "happy anniversary to my entire world ✿"
+    ],
+    secretLock: {
+      question: "The exact place where we decided to be together?",
+      answer: "Under the stars",
+      hint: "That chilly romantic evening..."
+    },
+    scratchCoupons: [
+      "🎟️ 1x Surprise Date Night Planned 100% by Me",
+      "🎟️ 1x Re-creating Our First Date Together",
+      "🎟️ 1x Spa Day & Complete Pampering Pass"
+    ],
+    voicePrompt: "Record an anniversary voice message...",
+    signoff: "with endless love"
+  },
+
+  birthday: {
+    name: "Birthday",
+    handTag: "happy birthday superstar 🎂",
+    headline: "Make their birthday unforgettable",
+    senderLabel: "Your name",
+    receiverLabel: "Birthday star's name",
+    senderPlaceholder: "Sneha",
+    receiverPlaceholder: "Karan",
+    defaultVibe: "playful",
+    defaultMessage: "Wishing the absolute happiest birthday to my favorite human on the planet! You bring so much sunshine, laughter, and warmth wherever you go. Today is entirely about celebrating YOU. Make a wish!",
+    theme: {
+      "--bg": "#fffbf0",
+      "--ink": "#2b2d42",
+      "--teal": "#e63946",
+      "--teal-d": "#ba181b",
+      "--mint": "#ffe3e0",
+      "--peach": "#ffb703",
+      "--gold": "#fb8500",
+      "--line": "#faedcd"
+    },
+    envelope: {
+      h2: "Make a Wish!",
+      p1: "A special birthday corner<br>built just for you...",
+      p2: "happy birthday superstar ✿",
+      stamp: "OFFICIAL BIRTHDAY VIP",
+      heart: "🎂"
+    },
+    viewerEyebrow: "HAPPY BIRTHDAY",
+    certificate: {
+      badge: "CERTIFICATE OF BIRTHDAY ROYALTY",
+      title: "Certified Birthday VIP Legend",
+      sub: "is hereby granted supreme birthday royal honors and privileges:",
+      witness: "the birthday cake fairy",
+      terms: [
+        "Zero Stress Protocol. Today you do zero chores and receive 100% pampering and attention.",
+        "Cake Eating Champion. Guaranteed first and biggest slice of any birthday cake.",
+        "Birthday Magic Multiplier. All birthday wishes made today have double the manifesting power.",
+        "Endless Celebrations. We celebrate you not just today, but every single day of the year.",
+        "Terms: aging like fine wine, looking more charming every year."
+      ]
+    },
+    memories: [
+      "wishing the happiest birthday to my absolute favorite!",
+      "the world became a much brighter place the day you were born.",
+      "so grateful I get to celebrate another year of your life.",
+      "may all your wildest and sweetest dreams come true.",
+      "you deserve all the joy, cake, and love in the universe.",
+      "happy birthday! Cheers to another great year ✿"
+    ],
+    secretLock: {
+      question: "What is the single thing you wish for most this year?",
+      answer: "Happiness",
+      hint: "Starts with H..."
+    },
+    scratchCoupons: [
+      "🎟️ 1x You Don't Lift a Single Finger All Day",
+      "🎟️ 1x First & Biggest Slice of Birthday Cake",
+      "🎟️ 1x Free Gift of Your Choice on My Tab"
+    ],
+    voicePrompt: "Sing happy birthday or say something sweet...",
+    signoff: "cheers to you"
+  },
+
+  custom: {
+    name: "Custom Event",
+    handTag: "a little surprise for you ✨",
+    headline: "Make someone special a little corner of the internet",
+    senderLabel: "Your name",
+    receiverLabel: "Their name",
+    senderPlaceholder: "Your Name",
+    receiverPlaceholder: "Their Name",
+    defaultVibe: "romantic",
+    defaultMessage: "I wanted to take a moment and remind you how much you mean to me. Life is better with you in it, and I made this little corner of the internet just to put a smile on your face.",
+    theme: {
+      "--bg": "#f0f4f8",
+      "--ink": "#1a2c38",
+      "--teal": "#0284c7",
+      "--teal-d": "#0369a1",
+      "--mint": "#bae6fd",
+      "--peach": "#f97316",
+      "--gold": "#eab308",
+      "--line": "#e2e8f0"
+    },
+    envelope: {
+      h2: "Surprise!",
+      p1: "A little corner of the internet<br>made just for you...",
+      p2: "with love ✿",
+      stamp: "SPECIAL EDITION",
+      heart: "✨"
+    },
+    viewerEyebrow: "JUST FOR YOU",
+    certificate: {
+      badge: "CERTIFICATE OF AWESOMENESS",
+      title: "Certified Extraordinary Human",
+      sub: "is officially recognized for being exceptional with these honors:",
+      witness: "the whole universe",
+      terms: [
+        "Pure Sunshine Award. Bringing happiness and good vibes wherever you go.",
+        "Always Appreciated. For all the little and big things that make you uniquely you.",
+        "Smiles Guaranteed. Required to smile while reading this special surprise.",
+        "Priority VIP Status. Forever holds a special place in my thoughts and heart.",
+        "Terms: valid forever, non-negotiable and guaranteed."
+      ]
+    },
+    memories: [
+      "thank you for being such a wonderful part of my life.",
+      "every moment shared with you is memorable.",
+      "never forget how truly incredible you are.",
+      "here is to all our past memories and many more to come.",
+      "you make every ordinary day feel extraordinary.",
+      "always cheering for you ✿"
+    ],
+    secretLock: {
+      question: "Our special secret keyword?",
+      answer: "Love",
+      hint: "The feeling we share..."
+    },
+    scratchCoupons: [
+      "🎟️ 1x Special Wish Granted by Me",
+      "🎟️ 1x Day of Complete Relaxation & Treat",
+      "🎟️ 1x Unlimited Big Hugs Voucher"
+    ],
+    voicePrompt: "Record a custom audio message...",
+    signoff: "warmest wishes"
+  }
+};
+
+/* ==========================================================
+   APP STATE
+========================================================== */
+const $ = i => document.getElementById(i);
+const esc = s => String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const sid0 = new URLSearchParams(location.search).get("id");
+const mode = sid0 ? "view" : "create";
+const first = mode==="view" ? 1 : 0;
+const files = [null,null,null];
+
+let currentEvent = "boyfriend";
+let currentVibe = "romantic";
+let currentWitnessType = "cat";
+let selectedSongFile = null;
+let selectedVoiceBlob = null;
+let selectedWitnessPhoto = null;
+let step = first, D = null, pending = null;
+
+const G = "https://media.giphy.com/media/v1.";
+const EVENT_MASCOTS = {
+  boyfriend: "assets/cat.gif",
+  girlfriend: "assets/boka.gif",
+  bestfriend: "assets/friend.gif",
+  valentines: "assets/love.gif",
+  missyou: "assets/miss.gif",
+  anniversary: "assets/anniversary.gif",
+  birthday: "assets/hbd.gif",
+  custom: "assets/love.gif"
+};
+
+function getEventMascot(evKey) {
+  return EVENT_MASCOTS[evKey] || "assets/cat.gif";
+}
+const CAT = "assets/cat.gif";
+const COUPLE_GIF_ASSETS = [
+  ...Array.from({ length: 20 }, (_, i) => `assets/mini${i + 1}.gif`),
+  "assets/cat.gif",
+  "assets/boka.gif",
+  "assets/friend.gif",
+  "assets/love.gif",
+  "assets/miss.gif",
+  "assets/missyou.gif",
+  "assets/hbd.gif",
+  "assets/birthday.gif",
+  "assets/anniversary.gif"
+];
+const DEF = [
+  "assets/mini1.gif",
+  "assets/mini2.gif",
+  "assets/mini3.gif"
+];
+const MINI_GIFS = COUPLE_GIF_ASSETS.slice(0, 3);
+const P = [1,2,3,4,5,6].map(i=>`p${i}.jpeg`);
+
+/* ==========================================================
+   VIRAL MEME & ANIMATED GIF LIBRARY (Curated Wholesome Collection)
+========================================================== */
+const VIRAL_MEME_LIBRARY = [
+  { id: 1, title: "I'm so Youholic", category: "funny", src: "/library/viral_1.jpg", caption: "Cute tongue blep" },
+  { id: 2, title: "i lve u babyyy muwaah", category: "romantic", src: "/library/viral_2.jpg", caption: "Sweet baby kissies" },
+  { id: 3, title: "Arrested in your love", category: "funny", src: "/library/viral_3.jpg", caption: "Kitty in tiny handcuffs" },
+  { id: 4, title: "Floating Hearts Shiba", category: "romantic", src: "/library/viral_4.jpg", caption: "Blissful Shiba surrounded by hearts" },
+  { id: 5, title: "Cheese Smile Dog + Flower", category: "cute", src: "/library/viral_5.jpg", caption: "Big cheeky grin holding yellow flower" },
+  { id: 6, title: "my pretty boyy / girl", category: "romantic", src: "/library/viral_6.jpg", caption: "Fluffy kitten staring up lovingly" },
+  { id: 7, title: "You Are My Whole World", category: "romantic", src: "/library/viral_7.jpg", caption: "Kitten with bright heart halo" },
+  { id: 8, title: "I Am Baby, Give Me Love", category: "cute", src: "/library/viral_8.jpg", caption: "Warm kitten burrito in soft blanket" },
+  { id: 9, title: "Flower For My Favorite Person", category: "romantic", src: "/library/viral_9.jpg", caption: "Golden puppy with fresh flower" },
+  { id: 10, title: "Sweetest Strawberry Treat", category: "cute", src: "/library/viral_10.jpg", caption: "Cute tiny hamster nibbling strawberry" },
+  { id: 11, title: "Warm Bunny Snuggles", category: "cute", src: "/library/viral_11.jpg", caption: "Fluffy rabbit resting in flowers" },
+  { id: 12, title: "Paws Around My Heart", category: "cute", src: "/library/viral_12.jpg", caption: "Tiny kitten clutching its little paws" },
+  { id: 13, title: "Caught Winking at You", category: "funny", src: "/library/viral_13.jpg", caption: "Cheeky Corgi dog winking playfully" },
+  { id: 14, title: "Dreaming Only of You", category: "romantic", src: "/library/viral_14.jpg", caption: "Sleepy peaceful baby kitten" },
+  { id: 15, title: "Head Tilted For You", category: "cute", src: "/library/viral_15.jpg", caption: "Golden retriever pup head tilt" },
+  { id: 16, title: "Holding Hands Forever", category: "romantic", src: "/library/viral_16.jpg", caption: "Two sea otters holding paws together" },
+  { id: 17, title: "The Brightest Smile", category: "cute", src: "/library/viral_17.jpg", caption: "Fluffy white smiling Samoyed dog" },
+  { id: 18, title: "Hypnotized By You", category: "funny", src: "/library/viral_18.jpg", caption: "Saucer eyes kitten looking up" },
+  { id: 19, title: "Silly Blep Just For You", category: "funny", src: "/library/viral_19.jpg", caption: "Goofy puppy sticking tongue out" },
+  { id: 20, title: "Curious Red Panda Paws", category: "cute", src: "/library/viral_20.jpg", caption: "Fluffy red panda reaching up curiously" },
+  { id: 21, title: "Heart-Shaped Boop", category: "romantic", src: "/library/viral_21.jpg", caption: "Cat with cute heart-shaped nose" },
+  { id: 22, title: "Cozy In Your Warmth", category: "cute", src: "/library/viral_22.jpg", caption: "Cute puppy tucked in knit beanie" },
+  { id: 23, title: "Sunny Grass Zoomies", category: "cute", src: "/library/viral_23.jpg", caption: "Golden puppy tumbling in the lawn" },
+  { id: 24, title: "Looking Up At My World", category: "romantic", src: "/library/viral_24.jpg", caption: "Frenchie puppy gazing with affection" },
+  { id: 25, title: "Angel Cloud of Love", category: "romantic", src: "/library/viral_25.jpg", caption: "Pure white kitten with bright blue eyes" },
+  { id: 26, title: "I Miss You Warm Hug (GIF)", category: "romantic", src: "assets/miss.gif", caption: "Sweet missing you animation" },
+  { id: 27, title: "Missing You Across Miles (GIF)", category: "romantic", src: "assets/missyou.gif", caption: "Long distance love animation" },
+  { id: 28, title: "True Love Hug (GIF)", category: "romantic", src: "assets/love.gif", caption: "Heartwarming romantic hug" },
+  { id: 29, title: "Boka Hugs (GIF)", category: "cute", src: "assets/boka.gif", caption: "Cute animated boka bear" },
+  { id: 30, title: "Besties Forever (GIF)", category: "funny", src: "assets/friend.gif", caption: "High five best friends" },
+  { id: 31, title: "Happy Cat Play (GIF)", category: "cute", src: "assets/cat.gif", caption: "Adorable animated kitty" },
+  { id: 32, title: "Birthday Confetti Dance (GIF)", category: "funny", src: "assets/hbd.gif", caption: "Birthday celebration dance" },
+  { id: 33, title: "Happy Birthday Party (GIF)", category: "funny", src: "assets/birthday.gif", caption: "Birthday party celebration" },
+  { id: 34, title: "Happy Anniversary Love (GIF)", category: "romantic", src: "assets/anniversary.gif", caption: "Forever together animation" }
+];
+
+let activeSlotForModal = 0;
+let currentMemeFilter = "all";
+let wallSlots = [0, 1, 2, 3, 4, 5].map(i => ({
+  type: "library",
+  url: `/library/viral_${i+1}.jpg`,
+  title: VIRAL_MEME_LIBRARY[i].title,
+  memeId: i + 1,
+  file: null,
+  note: ""
+}));
+
+function renderWallSlots() {
+  const grid = $("wallSlotsGrid");
+  if (!grid) return;
+  grid.innerHTML = "";
+
+  wallSlots.forEach((slot, i) => {
+    const card = document.createElement("div");
+    card.className = "wall-slot-card";
+    const isCustom = slot.type === "upload";
+    const badgeLabel = isCustom ? "📷 Custom Photo" : `Meme #${slot.memeId || (i+1)}`;
+
+    card.innerHTML = `
+      <div class="slot-preview-wrap">
+        <div class="slot-pin"></div>
+        <div class="slot-preview-polaroid" title="Click to swap meme" data-slot="${i}">
+          <img class="slot-preview-img" src="${esc(slot.url)}" alt="Card ${i+1}" onerror="this.src='/library/viral_${i+1}.jpg'">
+        </div>
+        <span class="slot-badge-type" title="${esc(slot.title)}">${esc(slot.title)}</span>
+      </div>
+      <div class="slot-details">
+        <div class="slot-header-row">
+          <span class="slot-card-num">Card ${i+1}</span>
+          <span class="badge-mini" style="font-size:10px;padding:1px 6px;">${badgeLabel}</span>
+        </div>
+        <textarea class="slot-note-area" data-slot="${i}" placeholder="Note written on back of card ${i+1}...">${esc(slot.note || "")}</textarea>
+        <div class="slot-btn-row">
+          <button type="button" class="btn ghost btn-xs btn-pick-meme" data-slot="${i}">✨ Pick Meme</button>
+          <button type="button" class="btn ghost btn-xs btn-upload-photo" data-slot="${i}">📤 Upload Photo</button>
+          ${isCustom ? `<button type="button" class="btn ghost btn-xs btn-danger btn-reset-slot" data-slot="${i}" title="Revert to default viral meme">✕ Reset</button>` : ''}
+          <input type="file" id="wallFileInput${i}" accept="image/*" style="display:none">
+        </div>
+      </div>
+    `;
+
+    // Note editing
+    const noteArea = card.querySelector(".slot-note-area");
+    noteArea.addEventListener("input", (e) => {
+      slot.note = e.target.value;
+      const syncEl = $("memInput" + i);
+      if (syncEl) syncEl.value = e.target.value;
+    });
+
+    // Polaroid click opens library
+    card.querySelector(".slot-preview-polaroid").addEventListener("click", () => {
+      openMemeModal(i);
+    });
+
+    // Pick Meme button
+    card.querySelector(".btn-pick-meme").addEventListener("click", () => {
+      openMemeModal(i);
+    });
+
+    // Upload personal photo button
+    const fileInp = card.querySelector(`#wallFileInput${i}`);
+    card.querySelector(".btn-upload-photo").addEventListener("click", () => {
+      fileInp.click();
+    });
+
+    fileInp.addEventListener("change", (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      const previewUrl = URL.createObjectURL(f);
+      wallSlots[i] = {
+        type: "upload",
+        url: previewUrl,
+        title: f.name.length > 18 ? f.name.slice(0, 15) + "..." : f.name,
+        memeId: null,
+        file: f,
+        note: slot.note
+      };
+      renderWallSlots();
+    });
+
+    // Reset slot button
+    if (isCustom) {
+      card.querySelector(".btn-reset-slot").addEventListener("click", () => {
+        const defMeme = VIRAL_MEME_LIBRARY[i];
+        wallSlots[i] = {
+          type: "library",
+          url: defMeme.src,
+          title: defMeme.title,
+          memeId: defMeme.id,
+          file: null,
+          note: slot.note
+        };
+        renderWallSlots();
+      });
+    }
+
+    grid.appendChild(card);
+  });
+}
+
+function openMemeModal(slotIdx) {
+  activeSlotForModal = slotIdx;
+  $("targetSlotName").textContent = `Card ${slotIdx + 1}`;
+  renderMemeGrid(currentMemeFilter);
+  $("memeModal").classList.remove("hidden");
+}
+
+function closeMemeModal() {
+  $("memeModal").classList.add("hidden");
+}
+
+function renderMemeGrid(category = "all") {
+  currentMemeFilter = category;
+  const grid = $("memeGrid");
+  if (!grid) return;
+  grid.innerHTML = "";
+
+  const activeSlot = wallSlots[activeSlotForModal];
+  const filtered = category === "all" 
+    ? VIRAL_MEME_LIBRARY 
+    : category === "animated"
+    ? VIRAL_MEME_LIBRARY.filter(m => m.src.endsWith(".gif"))
+    : VIRAL_MEME_LIBRARY.filter(m => m.category === category);
+
+  filtered.forEach(meme => {
+    const item = document.createElement("div");
+    const isSelected = activeSlot && activeSlot.url === meme.src;
+    item.className = "meme-item" + (isSelected ? " selected" : "");
+    item.innerHTML = `
+      <img class="meme-item-img" src="${esc(meme.src)}" alt="${esc(meme.title)}" loading="lazy">
+      <div class="meme-item-meta">
+        <span class="meme-item-title">${esc(meme.title)}</span>
+        <span class="meme-item-cat">${esc(meme.category)} • ${esc(meme.caption)}</span>
+      </div>
+      <button type="button" class="meme-select-btn">${isSelected ? '✓ Selected' : 'Choose for Card ' + (activeSlotForModal + 1)}</button>
+    `;
+
+    item.addEventListener("click", () => {
+      wallSlots[activeSlotForModal] = {
+        type: "library",
+        url: meme.src,
+        title: meme.title,
+        memeId: meme.id,
+        file: null,
+        note: wallSlots[activeSlotForModal].note
+      };
+      renderWallSlots();
+      closeMemeModal();
+    });
+
+    grid.appendChild(item);
+  });
+}
+
+function shuffleMemes() {
+  const shuffled = [...VIRAL_MEME_LIBRARY].sort(() => 0.5 - Math.random());
+  for (let i = 0; i < 6; i++) {
+    const m = shuffled[i];
+    wallSlots[i] = {
+      type: "library",
+      url: m.src,
+      title: m.title,
+      memeId: m.id,
+      file: null,
+      note: wallSlots[i].note
+    };
+  }
+  renderWallSlots();
+}
+
+function resetWallMemes() {
+  for (let i = 0; i < 6; i++) {
+    const m = VIRAL_MEME_LIBRARY[i];
+    wallSlots[i] = {
+      type: "library",
+      url: m.src,
+      title: m.title,
+      memeId: m.id,
+      file: null,
+      note: wallSlots[i].note
+    };
+  }
+  renderWallSlots();
+}
+
+/* ==========================================================
+   PAGE 2 CUTE COUPLE GIF ROTATOR ENGINE
+========================================================== */
+let miniRotatorInterval = null;
+let currentMinis = ["assets/mini1.gif", "assets/mini2.gif", "assets/mini3.gif"];
+let nextRotatingSlot = 0;
+
+function initMiniGifRotator() {
+  if (miniRotatorInterval) {
+    clearInterval(miniRotatorInterval);
+    miniRotatorInterval = null;
+  }
+
+  // Prioritize current event mascot (e.g. miss.gif for missyou) as card 1, plus 2 distinct random GIFs
+  const ev = (D && D.eventType) ? D.eventType : currentEvent;
+  const eventMascot = getEventMascot(ev);
+  const otherGifs = COUPLE_GIF_ASSETS.filter(g => g !== eventMascot).sort(() => 0.5 - Math.random());
+  currentMinis = [eventMascot, otherGifs[0] || "assets/mini1.gif", otherGifs[1] || "assets/mini2.gif"];
+
+  const container = $("minis");
+  if (!container) return;
+
+  container.innerHTML = currentMinis.map((src, idx) => `
+    <div class="mini-card" data-idx="${idx}" title="Click to swap animation!">
+      <img id="miniImg${idx}" src="${esc(src)}" alt="Cute couple animation" onerror="this.src='assets/mini1.gif'">
+    </div>
+  `).join("");
+
+  // Allow clicking on any card to immediately swap it with a random fresh GIF
+  container.querySelectorAll(".mini-card").forEach(card => {
+    card.onclick = (e) => {
+      e.stopPropagation();
+      const idx = parseInt(card.dataset.idx, 10);
+      swapSingleMini(idx);
+    };
+  });
+
+  // Automatically rotate a card randomly every 3.2 seconds
+  nextRotatingSlot = 0;
+  miniRotatorInterval = setInterval(() => {
+    // Rotate when viewing Page 2 or previewing
+    if (step === 2) {
+      swapSingleMini(nextRotatingSlot);
+      nextRotatingSlot = (nextRotatingSlot + 1) % 3;
+    }
+  }, 3200);
+}
+
+function swapSingleMini(slotIdx) {
+  const img = $("miniImg" + slotIdx);
+  if (!img) return;
+
+  // Filter available GIFs not currently shown in any of the 3 cards
+  const available = COUPLE_GIF_ASSETS.filter(g => !currentMinis.includes(g));
+  if (!available.length) return;
+
+  const nextGif = available[Math.floor(Math.random() * available.length)];
+  currentMinis[slotIdx] = nextGif;
+
+  // Smooth micro-animation fade out -> swap -> fade in
+  img.classList.add("changing");
+  setTimeout(() => {
+    img.src = nextGif;
+    img.onload = () => {
+      img.classList.remove("changing");
+    };
+    setTimeout(() => img.classList.remove("changing"), 200);
+  }, 320);
+}
+
+const aud = $("aud");
+const voiceAud = $("voiceAud");
+const previewAud = new Audio();
+const previewVoice = new Audio();
+
+function applyTheme(theme) {
+  if (!theme) return;
+  const root = document.documentElement;
+  for (const [key, val] of Object.entries(theme)) {
+    root.style.setProperty(key, val);
+  }
+}
+
+function formatBytes(bytes) {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
+/* Event Selection & Context Adaptation */
+function selectEvent(evKey) {
+  currentEvent = evKey;
+  const preset = EVENT_PRESETS[evKey];
+  if (!preset) return;
+
+  document.querySelectorAll(".event-btn").forEach(b => {
+    b.classList.toggle("active", b.dataset.event === evKey);
+  });
+
+  $("customEventRow").classList.toggle("hidden", evKey !== "custom");
+
+  $("formBadge").textContent = `✨ ${preset.name} ✨`;
+  $("formHand").textContent = preset.handTag;
+  $("formH1").textContent = preset.headline;
+  $("senderLabel").textContent = preset.senderLabel;
+  $("receiverLabel").textContent = preset.receiverLabel;
+  $("sender").placeholder = preset.senderPlaceholder;
+  $("receiver").placeholder = preset.receiverPlaceholder;
+
+  if (!$("message").value || Object.values(EVENT_PRESETS).some(p => p.defaultMessage === $("message").value)) {
+    $("message").value = preset.defaultMessage;
+  }
+
+  // Set default vibe
+  selectVibe(preset.defaultVibe || "romantic");
+
+  // Adapt Passcode defaults (Point 2)
+  if (preset.secretLock) {
+    $("secretQuestionInput").placeholder = preset.secretLock.question;
+    $("secretAnswerInput").placeholder = preset.secretLock.answer;
+    $("secretHintInput").placeholder = preset.secretLock.hint;
+  }
+
+  // Adapt Scratch Coupons defaults (Point 3)
+  if (preset.scratchCoupons) {
+    preset.scratchCoupons.forEach((coupon, i) => {
+      const el = $("scratchInput" + i);
+      if (el) el.value = coupon;
+    });
+  }
+
+  // Adapt Witness defaults (Point 7)
+  $("witnessNameInput").value = preset.certificate.witness;
+
+  // Adapt Voice Prompt (Point 1)
+  $("voicePromptText").textContent = preset.voicePrompt || "Record your voice so they can hear you speak while reading their surprise.";
+
+  // Update mascot sticker for current event (cat for boyfriend, boka for girlfriend, friend for bestfriend, love for valentines)
+  const mascotUrl = getEventMascot(evKey);
+  $("catImg").src = mascotUrl;
+  $("catImg2").src = mascotUrl;
+
+  // Auto-select corresponding witness
+  if (evKey === "girlfriend") selectWitness("boka");
+  else if (evKey === "bestfriend") selectWitness("friend");
+  else if (evKey === "valentines") selectWitness("cupid");
+  else if (evKey === "missyou") selectWitness("moon");
+  else selectWitness("cat");
+
+  // Sync memory notes with wall slots
+  preset.memories.forEach((mem, idx) => {
+    if (wallSlots[idx] && (!wallSlots[idx].note || Object.values(EVENT_PRESETS).some(p => p.memories[idx] === wallSlots[idx].note))) {
+      wallSlots[idx].note = mem;
+    }
+  });
+
+  // For I Miss You section, showcase miss.gif on Card 1 if default
+  if (evKey === "missyou") {
+    if (wallSlots[0] && (!wallSlots[0].file)) {
+      wallSlots[0] = {
+        type: "library",
+        url: "assets/miss.gif",
+        title: "I Miss You Warm Hug (GIF)",
+        memeId: 26,
+        file: null,
+        note: wallSlots[0].note || preset.memories[0]
+      };
+    }
+  }
+
+  renderWallSlots();
+
+  // Populate duties and memories
+  $("certTitleInput").value = preset.certificate.title;
+  populateAccordionFields(preset);
+
+  applyTheme(preset.theme);
+}
+
+function selectVibe(vibeKey) {
+  currentVibe = vibeKey;
+  document.querySelectorAll(".vibe-btn").forEach(b => {
+    b.classList.toggle("active", b.dataset.vibe === vibeKey);
+  });
+}
+
+function selectWitness(wKey) {
+  currentWitnessType = wKey;
+  document.querySelectorAll(".witness-chip").forEach(b => {
+    b.classList.toggle("active", b.dataset.witness === wKey);
+  });
+
+  const preset = EVENT_PRESETS[currentEvent];
+  const nameMap = {
+    cat: "the cat (official witness)",
+    boka: "boka (official cute witness)",
+    friend: "best friend (partner in crime)",
+    dog: "good doggo (official good boy)",
+    moon: "the moon (connecting our hearts)",
+    cupid: "cupid himself (official witness)",
+    custom: "our best friend (witness)"
+  };
+  if (nameMap[wKey]) {
+    $("witnessNameInput").value = nameMap[wKey];
+  }
+}
+
+function populateAccordionFields(preset) {
+  const termsBox = $("termsInputs");
+  termsBox.innerHTML = "";
+  preset.certificate.terms.forEach((term, idx) => {
+    const row = document.createElement("div");
+    row.className = "term-input-row";
+    row.innerHTML = `<span>${idx+1}.</span><input type="text" id="termInput${idx}" value="${esc(term)}">`;
+    termsBox.appendChild(row);
+  });
+
+  const memBox = $("memoriesInputs");
+  memBox.innerHTML = "";
+  preset.memories.forEach((mem, idx) => {
+    const row = document.createElement("div");
+    row.className = "term-input-row";
+    const currentVal = wallSlots[idx] && wallSlots[idx].note ? wallSlots[idx].note : mem;
+    row.innerHTML = `<span>${idx+1}.</span><input type="text" id="memInput${idx}" value="${esc(currentVal)}">`;
+    const inputEl = row.querySelector("input");
+    inputEl.addEventListener("input", (e) => {
+      if (wallSlots[idx]) {
+        wallSlots[idx].note = e.target.value;
+        const slotEl = document.querySelector(`.slot-note-area[data-slot="${idx}"]`);
+        if (slotEl) slotEl.value = e.target.value;
+      }
+    });
+    memBox.appendChild(row);
+  });
+}
+
+// Accordion toggle
+$("accToggle").onclick = () => {
+  const isHidden = $("accBody").classList.toggle("hidden");
+  $("accToggle").textContent = isHidden 
+    ? "🎁 Special Add-ons: Secret Passcode, Scratch Coupons & Witness (Optional) ▾" 
+    : "🎁 Hide Special Add-ons ▴";
+};
+
+document.querySelectorAll(".event-btn").forEach(btn => {
+  btn.onclick = () => selectEvent(btn.dataset.event);
+});
+document.querySelectorAll(".vibe-btn").forEach(btn => {
+  btn.onclick = () => selectVibe(btn.dataset.vibe);
+});
+document.querySelectorAll(".witness-chip").forEach(btn => {
+  btn.onclick = () => selectWitness(btn.dataset.witness);
+});
+
+// Memory Wall & Meme Library Action Listeners
+$("browseAllMemesBtn").onclick = () => openMemeModal(0);
+$("shuffleMemesBtn").onclick = () => shuffleMemes();
+$("resetWallMemesBtn").onclick = () => resetWallMemes();
+$("memeModalClose").onclick = () => closeMemeModal();
+$("memeModal").onclick = (e) => {
+  if (e.target === $("memeModal")) closeMemeModal();
+};
+document.querySelectorAll(".filter-chip").forEach(chip => {
+  chip.onclick = () => {
+    document.querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
+    chip.classList.add("active");
+    renderMemeGrid(chip.dataset.filter);
+  };
+});
+
+/* ==========================================================
+   VOICE RECORDING (Point 1 - Optional)
+========================================================== */
+let mediaRecorder = null;
+let audioChunks = [];
+let recTimerInterval = null;
+let recSeconds = 0;
+
+$("voiceRecordBtn").onclick = async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorder = new MediaRecorder(stream);
+    audioChunks = [];
+    recSeconds = 0;
+
+    mediaRecorder.ondataavailable = (e) => {
+      if (e.data && e.data.size > 0) audioChunks.push(e.data);
+    };
+
+    mediaRecorder.onstop = () => {
+      clearInterval(recTimerInterval);
+      stream.getTracks().forEach(track => track.stop());
+      selectedVoiceBlob = new Blob(audioChunks, { type: 'audio/webm' });
+      
+      $("voiceRecordingState").classList.add("hidden");
+      $("voiceDoneState").classList.remove("hidden");
+      $("voiceRecordedName").textContent = "Recorded Voice Note";
+      $("voiceRecordedDuration").textContent = `${recSeconds}s recording ready`;
+      previewVoice.src = URL.createObjectURL(selectedVoiceBlob);
+      if (!$("voiceTitleInput").value.trim()) {
+        $("voiceTitleInput").value = "A voice note for you";
+      }
+    };
+
+    mediaRecorder.start();
+    $("voiceEmptyState").classList.add("hidden");
+    $("voiceRecordingState").classList.remove("hidden");
+
+    recTimerInterval = setInterval(() => {
+      recSeconds++;
+      const m = String(Math.floor(recSeconds / 60)).padStart(2, '0');
+      const s = String(recSeconds % 60).padStart(2, '0');
+      $("recTimer").textContent = `${m}:${s} / 01:00`;
+      if (recSeconds >= 60) {
+        mediaRecorder.stop();
+      }
+    }, 1000);
+  } catch (err) {
+    console.error("Mic access denied or unavailable:", err);
+    alert("Microphone access unavailable. You can also upload a voice memo audio file instead!");
+  }
+};
+
+$("voiceStopBtn").onclick = () => {
+  if (mediaRecorder && mediaRecorder.state === "recording") {
+    mediaRecorder.stop();
+  }
+};
+
+$("voiceUploadBtn").onclick = () => $("voiceFileInput").click();
+$("voiceFileInput").onchange = (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  selectedVoiceBlob = f;
+  $("voiceEmptyState").classList.add("hidden");
+  $("voiceDoneState").classList.remove("hidden");
+  $("voiceRecordedName").textContent = f.name;
+  $("voiceRecordedDuration").textContent = formatBytes(f.size);
+  previewVoice.src = URL.createObjectURL(f);
+  if (!$("voiceTitleInput").value.trim()) {
+    $("voiceTitleInput").value = f.name.replace(/\.[^/.]+$/, "");
+  }
+};
+
+$("testVoicePlayBtn").onclick = () => {
+  if (!previewVoice.src) return;
+  if (previewVoice.paused) {
+    previewVoice.play().then(() => {
+      $("testVoicePlayBtn").textContent = "❚❚ Pause";
+    }).catch(err => console.error(err));
+  } else {
+    previewVoice.pause();
+    $("testVoicePlayBtn").textContent = "▶ Play";
+  }
+};
+previewVoice.onended = () => {
+  $("testVoicePlayBtn").textContent = "▶ Play";
+};
+
+$("voiceRemoveBtn").onclick = () => {
+  previewVoice.pause();
+  previewVoice.removeAttribute("src");
+  selectedVoiceBlob = null;
+  $("voiceFileInput").value = "";
+  $("voiceDoneState").classList.add("hidden");
+  $("voiceEmptyState").classList.remove("hidden");
+};
+
+/* Witness Photo Upload */
+$("witnessPhotoInput").onchange = (e) => {
+  const f = e.target.files[0];
+  if (f) selectedWitnessPhoto = f;
+};
+
+/* ==========================================================
+   NAVIGATION & ENVELOPE FLOW (Point 2 - Secret Lock)
+========================================================== */
+function show(n, push=true){
+  step = n;
+  for(let i=0; i<6; i++) {
+    const el = $("pg"+i);
+    if(el) el.classList.toggle("hidden", i!==n);
+  }
+  $("nav").classList.toggle("hidden", n<1);
+  $("back").classList.toggle("show", n>first);
+  $("next").classList.toggle("show", n>=1 && n<5);
+  $("next").textContent = n===1 ? "Open ✉" : "Next →";
+  document.querySelectorAll("#dots i").forEach((d,i)=>d.classList.toggle("on", i===n-1));
+  $("genbox").classList.toggle("hidden", mode!=="create");
+  window.scrollTo(0,0);
+  if(push) history.pushState({n},"",location.search+"#s"+n);
+}
+const go = d => { const n=step+d; if(n>=first && n<=5 && (n>=1||mode==="create")) show(n); };
+window.addEventListener("popstate", e => { const n = e.state?.n ?? first; show(D||n===0 ? n : first, false); });
+$("back").onclick = () => history.length>1 && history.state && history.state.n>first ? history.back() : go(-1);
+
+const playSong = () => {
+  if (aud.src) aud.play().catch(()=>{});
+};
+
+function tryOpenEnvelope() {
+  // Check if Secret Lock is active
+  if (D && D.secretQuestion && D.secretAnswer) {
+    $("passcodeModal").classList.remove("hidden");
+    $("passcodeQuestionDisplay").textContent = D.secretQuestion;
+    $("passcodeHintDisplay").textContent = D.secretHint ? `Hint: ${D.secretHint}` : "";
+    $("passcodeAnswerInput").value = "";
+    $("passcodeErr").textContent = "";
+    setTimeout(() => $("passcodeAnswerInput").focus(), 100);
+    return;
+  }
+  unlockSuccess();
+}
+
+function unlockSuccess() {
+  $("passcodeModal").classList.add("hidden");
+  playSong();
+  if (window.confetti) {
+    confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+  }
+  go(1);
+}
+
+$("unlockBtn").onclick = () => {
+  const ans = $("passcodeAnswerInput").value.trim().toLowerCase();
+  const target = (D.secretAnswer || "").trim().toLowerCase();
+  if (!ans) {
+    $("passcodeErr").textContent = "Please enter an answer!";
+    return;
+  }
+  if (ans === target || target.includes(ans) || ans.includes(target)) {
+    unlockSuccess();
+  } else {
+    $("passcodeErr").textContent = "Not quite! Think about that special memory ✿";
+    $("passcodeAnswerInput").select();
+  }
+};
+$("passcodeAnswerInput").onkeydown = (e) => {
+  if (e.key === "Enter") $("unlockBtn").click();
+};
+
+$("next").onclick = () => { if(step===1) tryOpenEnvelope(); else go(1); };
+$("pg1").onclick = (e) => {
+  if (e.target.closest("#passcodeModal")) return;
+  tryOpenEnvelope();
+};
+
+document.addEventListener("keydown", e => {
+  if($("modal").classList.contains("hidden") && $("passcodeModal").classList.contains("hidden") && step>=1 && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)){
+    if(e.key==="ArrowRight") go(1); if(e.key==="ArrowLeft") go(-1);
+  }
+});
+
+/* ==========================================================
+   RENDER EXPERIENCES (Points 1, 2, 3, 6, 7)
+========================================================== */
+function render(d){
+  D = d;
+  const evKey = d.eventType || "boyfriend";
+  const preset = EVENT_PRESETS[evKey] || EVENT_PRESETS.boyfriend;
+
+  applyTheme(d.themeColors || preset.theme);
+
+  // Vibe Class Adjustment (Point 6)
+  document.body.className = `vibe-${d.vibe || 'romantic'}`;
+
+  const ph = (d.photos||[]).concat(DEF).slice(0,3);
+
+  // Page 1: Envelope
+  $("envH2").innerHTML = esc(d.envelopeLetterTitle || preset.envelope.h2);
+  $("envP1").innerHTML = d.envelopeLetterSub || preset.envelope.p1;
+  $("envP2").innerHTML = esc(d.eventTitle || preset.envelope.p2);
+  $("envStamp").textContent = d.envelopeStamp || preset.envelope.stamp;
+  $("envHeart").textContent = preset.envelope.heart;
+  const mascotUrl = getEventMascot(d.eventType);
+  $("catImg").src = mascotUrl;
+  $("catImg2").src = mascotUrl;
+
+  // Page 2: Hero & Message
+  const eyebrowText = d.eventTitle || preset.viewerEyebrow;
+  $("vEyebrow").textContent = eyebrowText.toUpperCase();
+  $("vTitle").textContent = `To ${d.receiver}`;
+  $("vRibbon").textContent = `from ${d.sender} ✿`;
+  $("vMsg").textContent = d.message;
+
+  if (ph[0]) $("heroImg").src = ph[0];
+  initMiniGifRotator();
+
+  // Music Player
+  $("pArt").src = ph[1] || currentMinis[0];
+  if (d.musicUrl) {
+    aud.src = d.musicUrl;
+    aud.load();
+    $("pSongTitle").textContent = d.songTitle || "Our Song";
+    $("pNowLabel").textContent = "NOW PLAYING";
+    $("hintText").textContent = "press play — this melody belongs to us ✿";
+    $("musicPlayerBox").classList.remove("hidden");
+  } else {
+    aud.removeAttribute("src");
+    $("pSongTitle").textContent = d.songTitle || "A Special Melody";
+    $("pNowLabel").textContent = "MUSIC";
+    $("hintText").textContent = "created with all my love for you ✿";
+  }
+
+  // Page 3: Memory Wall
+  const memoriesList = (d.memoryNotes && d.memoryNotes.length === 6) ? d.memoryNotes : preset.memories;
+  const wallPhotosList = (d.wallPhotos && d.wallPhotos.length === 6)
+    ? d.wallPhotos
+    : [1, 2, 3, 4, 5, 6].map(i => `/library/viral_${i}.jpg`);
+  $("wall").innerHTML = wallPhotosList.map((u,i)=>`
+    <button class="flip" aria-label="Flip photo ${i+1}">
+      <span class="pin"></span>
+      <div>
+        <figure><img src="${esc(u)}" alt="Memory ${i+1}" onerror="this.src='/library/viral_${i+1}.jpg'"></figure>
+        <div class="back">${esc(memoriesList[i] || '')}</div>
+      </div>
+    </button>`).join("");
+    
+  document.querySelectorAll(".flip").forEach(b=>{
+    b.onclick = e => {
+      e.stopPropagation();
+      b.classList.toggle("on");
+    };
+  });
+
+  // Page 4: Certificate (Point 7 - Witness)
+  $("certEyebrow").textContent = "OFFICIALLY OFFICIAL";
+  $("certK").textContent = d.certificateBadge || preset.certificate.badge;
+  $("certHeading").textContent = d.certificateTitle || preset.certificate.title;
+  $("cWho").textContent = d.receiver;
+  $("cFrom").textContent = d.sender;
+  $("cPh").src = ph[0];
+  $("certSubText").textContent = d.certificateSub || preset.certificate.sub;
+
+  // Witness Avatar & Name
+  const witnessName = d.witnessName || preset.certificate.witness || "the cat";
+  $("witnessNameText").textContent = witnessName;
+  if (d.witnessPhotoUrl) {
+    $("witnessAvatarImg").src = d.witnessPhotoUrl;
+    $("witnessAvatarImg").classList.remove("hidden");
+  } else {
+    $("witnessAvatarImg").src = getEventMascot(d.eventType);
+    $("witnessAvatarImg").classList.remove("hidden");
+  }
+
+  const termsList = (d.certificateTerms && d.certificateTerms.length) ? d.certificateTerms : preset.certificate.terms;
+  $("certTermsList").innerHTML = termsList.map(t => `<li>${esc(t)}</li>`).join("");
+
+  // Scratch Cards (Point 3)
+  const coupons = (d.scratchCoupons && d.scratchCoupons.length) ? d.scratchCoupons : (preset.scratchCoupons || []);
+  if (coupons && coupons.length) {
+    $("scratchSection").classList.remove("hidden");
+    setupScratchCards(coupons);
+  } else {
+    $("scratchSection").classList.add("hidden");
+  }
+
+  // Page 5: Letter & Voice Note Cassette (Point 1)
+  [0,1,2].forEach(i=>{
+    const el = $("lp"+i);
+    if(el) el.src = ph[i];
+  });
+  const signoffWord = preset.signoff || "always yours";
+  $("note").innerHTML = `Hey ${esc(d.receiver)},\n\n${esc(d.message)}\n\n${esc(signoffWord)},\n<span class="sig">${esc(d.sender)}</span>`;
+
+  // Voice Note Cassette
+  if (d.voiceNoteUrl) {
+    $("cassetteBox").classList.remove("hidden");
+    $("cassetteTitle").textContent = d.voiceNoteTitle || `Voice Memo from ${d.sender}`;
+    voiceAud.src = d.voiceNoteUrl;
+    voiceAud.load();
+  } else {
+    $("cassetteBox").classList.add("hidden");
+    voiceAud.removeAttribute("src");
+  }
+}
+
+if(mode==="view") {
+  $("returnBtn").classList.remove("hidden");
+}
+
+/* ==========================================================
+   SCRATCH-OFF CARDS ENGINE (Point 3)
+========================================================== */
+function setupScratchCards(coupons) {
+  const grid = $("scratchGrid");
+  grid.innerHTML = "";
+  
+  coupons.slice(0, 3).forEach((text, idx) => {
+    const cardBox = document.createElement("div");
+    cardBox.className = "scratch-card-box";
+    cardBox.innerHTML = `
+      <div class="scratch-content">${esc(text)}</div>
+      <canvas class="scratch-canvas" id="scCanvas${idx}"></canvas>
+    `;
+    grid.appendChild(cardBox);
+
+    setTimeout(() => initScratchCanvas(cardBox.querySelector("canvas")), 50);
+  });
+}
+
+function initScratchCanvas(canvas) {
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width;
+  canvas.height = rect.height;
+  const ctx = canvas.getContext("2d");
+
+  // Draw shimmering metallic foil
+  const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+  grad.addColorStop(0, "#d8e2dc");
+  grad.addColorStop(0.5, "#b8c0bc");
+  grad.addColorStop(1, "#9ea8a3");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Add decorative foil text
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 13px Inter, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("✨ SCRATCH WITH FINGER ✨", canvas.width / 2, canvas.height / 2);
+
+  let isDrawing = false;
+  let scratchedPixels = 0;
+  let isRevealed = false;
+
+  function scratch(e) {
+    if (!isDrawing || isRevealed) return;
+    const r = canvas.getBoundingClientRect();
+    const x = (e.clientX || (e.touches && e.touches[0].clientX)) - r.left;
+    const y = (e.clientY || (e.touches && e.touches[0].clientY)) - r.top;
+
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.beginPath();
+    ctx.arc(x, y, 22, 0, Math.PI * 2);
+    ctx.fill();
+
+    scratchedPixels++;
+    if (scratchedPixels > 25 && !isRevealed) {
+      isRevealed = true;
+      if (window.confetti) {
+        confetti({ particleCount: 30, spread: 45, origin: { y: 0.7 } });
+      }
+    }
+  }
+
+  canvas.addEventListener("mousedown", (e) => { isDrawing = true; scratch(e); });
+  canvas.addEventListener("mousemove", scratch);
+  window.addEventListener("mouseup", () => isDrawing = false);
+
+  canvas.addEventListener("touchstart", (e) => { isDrawing = true; scratch(e); });
+  canvas.addEventListener("touchmove", scratch);
+  window.addEventListener("touchend", () => isDrawing = false);
+}
+
+/* ==========================================================
+   VOICE NOTE CASSETTE CONTROLS (Point 1)
+========================================================== */
+const cassettePlayBtn = $("cassettePlayBtn");
+cassettePlayBtn.onclick = () => {
+  if (!voiceAud.src) return;
+  if (voiceAud.paused) {
+    // Pause background song for voice clarity
+    aud.pause();
+    voiceAud.play().then(() => {
+      cassettePlayBtn.textContent = "❚❚";
+      $("cassetteBox").classList.add("playing");
+    }).catch(err => console.error(err));
+  } else {
+    voiceAud.pause();
+    cassettePlayBtn.textContent = "▶";
+    $("cassetteBox").classList.remove("playing");
+    // Resume background music gently
+    playSong();
+  }
+};
+voiceAud.onended = () => {
+  cassettePlayBtn.textContent = "▶";
+  $("cassetteBox").classList.remove("playing");
+  playSong();
+};
+voiceAud.ontimeupdate = () => {
+  $("cassetteTime").textContent = fmt(voiceAud.currentTime) + " / " + fmt(voiceAud.duration);
+};
+
+/* ==========================================================
+   MUSIC PLAYER
+========================================================== */
+const fmt = t => isFinite(t) ? Math.floor(t/60)+":"+String(Math.floor(t%60)).padStart(2,"0") : "0:00";
+const syncBtn = () => { $("pplay").textContent = aud.paused ? "▶" : "❚❚"; };
+$("pplay").onclick = () => aud.paused ? playSong() : aud.pause();
+aud.onplay = aud.onpause = syncBtn;
+aud.ontimeupdate = aud.onloadedmetadata = () => {
+  $("pfill").style.width = (aud.duration ? aud.currentTime/aud.duration*100 : 0)+"%";
+  $("ptime").textContent = fmt(aud.currentTime)+" / "+fmt(aud.duration);
+};
+$("pbar").onclick = e => { 
+  if(!aud.duration) return; 
+  const r=e.currentTarget.getBoundingClientRect(); 
+  aud.currentTime=(e.clientX-r.left)/r.width*aud.duration; 
+};
+$("albumBtn").onclick = () => go(1);
+
+/* ==========================================================
+   CERTIFICATE DOWNLOAD
+========================================================== */
+$("dlCert").onclick = async () => {
+  const b = $("dlCert"); 
+  b.disabled = true; 
+  b.textContent = "Making it…";
+  try{
+    const c = await html2canvas($("certBox"), {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: null,
+      onclone: doc => {
+        doc.getElementById("certBox").style.transform = "none";
+      }
+    });
+    const a = document.createElement("a"); 
+    a.href = c.toDataURL("image/png"); 
+    a.download = `certificate-${(D&&D.receiver)||'official'}.png`; 
+    a.click();
+    if (window.confetti) confetti({ particleCount: 50, spread: 60 });
+  }catch(e){ 
+    console.error(e); 
+    alert("Couldn't download directly. A screenshot works beautifully too!"); 
+  }
+  b.disabled = false; 
+  b.textContent = "Download certificate ⬇";
+};
+syncBtn();
+
+/* ==========================================================
+   FORM & PREVIEW LOGIC
+========================================================== */
+if(mode==="create"){
+  selectEvent("boyfriend");
+
+  [0,1,2].forEach(i=>{
+    const inp = $("pic"+i);
+    const box = $("pbox"+i);
+    if(inp){
+      inp.addEventListener("change", e=>{
+        const f = e.target.files[0]; 
+        if(!f) return;
+        files[i] = f; 
+        box.style.backgroundImage = `url(${URL.createObjectURL(f)})`; 
+        box.classList.add("has");
+      });
+    }
+  });
+
+  // Music File Upload Handling
+  function handleSongSelection(file) {
+    if (!file) return;
+    selectedSongFile = file;
+    $("songFileName").textContent = file.name;
+    $("songFileSize").textContent = formatBytes(file.size);
+    $("noSongView").classList.add("hidden");
+    $("hasSongView").classList.remove("hidden");
+
+    if (!$("songTitleInput").value.trim()) {
+      $("songTitleInput").value = file.name.replace(/\.[^/.]+$/, "");
+    }
+
+    previewAud.src = URL.createObjectURL(file);
+    $("testPlaySongBtn").textContent = "▶ Listen";
+  }
+
+  $("pickSongBtn").onclick = () => $("songFileInput").click();
+  $("songFileInput").onchange = (e) => {
+    const f = e.target.files[0];
+    if (f) handleSongSelection(f);
+  };
+
+  const dropZone = $("songDropZone");
+  ['dragenter', 'dragover'].forEach(name => {
+    dropZone.addEventListener(name, (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+  });
+  ['dragleave', 'drop'].forEach(name => {
+    dropZone.addEventListener(name, (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+    });
+  });
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const f = e.dataTransfer.files[0];
+      if (f.type.startsWith('audio/') || /\.(mp3|m4a|wav|aac|ogg|opus|flac)$/i.test(f.name)) {
+        handleSongSelection(f);
+      } else {
+        alert("Please drop a valid audio file (e.g. MP3, M4A, WAV).");
+      }
+    }
+  });
+
+  $("testPlaySongBtn").onclick = () => {
+    if (!previewAud.src) return;
+    if (previewAud.paused) {
+      previewAud.play().then(() => {
+        $("testPlaySongBtn").textContent = "❚❚ Pause";
+      }).catch(err => console.error(err));
+    } else {
+      previewAud.pause();
+      $("testPlaySongBtn").textContent = "▶ Listen";
+    }
+  };
+  previewAud.onended = () => {
+    $("testPlaySongBtn").textContent = "▶ Listen";
+  };
+
+  $("removeSongBtn").onclick = () => {
+    previewAud.pause();
+    previewAud.removeAttribute("src");
+    selectedSongFile = null;
+    $("songFileInput").value = "";
+    $("hasSongView").classList.add("hidden");
+    $("noSongView").classList.remove("hidden");
+    $("testPlaySongBtn").textContent = "▶ Listen";
+  };
+
+  $("previewBtn").onclick = () => {
+    const sender = $("sender").value.trim();
+    const receiver = $("receiver").value.trim();
+    const message = $("message").value.trim();
+    
+    if(!sender || !receiver) return $("err").textContent = "Please add both your name and recipient's name.";
+    if(files.some(f => !f)) return $("err").textContent = "Please select all 3 photos.";
+    if(!message) return $("err").textContent = "Please write a personal message.";
+    $("err").textContent = "";
+
+    previewAud.pause();
+    previewVoice.pause();
+    $("testPlaySongBtn").textContent = "▶ Listen";
+    $("testVoicePlayBtn").textContent = "▶ Play";
+
+    const preset = EVENT_PRESETS[currentEvent];
+    const customTitle = currentEvent === "custom" && $("customEventName").value.trim() 
+      ? $("customEventName").value.trim() 
+      : preset.name;
+
+    // Collect custom terms
+    const customTerms = [];
+    for(let i=0; i<5; i++){
+      const el = $("termInput"+i);
+      if(el && el.value.trim()) customTerms.push(el.value.trim());
+    }
+
+    // Collect custom memories
+    const customMemories = [];
+    for(let i=0; i<6; i++){
+      const el = $("memInput"+i);
+      if(el && el.value.trim()) customMemories.push(el.value.trim());
+    }
+
+    // Collect scratch coupons (Point 3)
+    const couponsList = [];
+    for(let i=0; i<3; i++){
+      const el = $("scratchInput"+i);
+      if(el && el.value.trim()) couponsList.push(el.value.trim());
+    }
+
+    const chosenSongTitle = $("songTitleInput").value.trim() || (selectedSongFile ? selectedSongFile.name.replace(/\.[^/.]+$/, "") : "Our Song");
+    const chosenSongUrl = selectedSongFile ? URL.createObjectURL(selectedSongFile) : "";
+    const chosenVoiceUrl = selectedVoiceBlob ? URL.createObjectURL(selectedVoiceBlob) : "";
+    const chosenWitnessPhotoUrl = selectedWitnessPhoto ? URL.createObjectURL(selectedWitnessPhoto) : "";
+
+    render({
+      eventType: currentEvent,
+      eventTitle: customTitle,
+      vibe: currentVibe,
+      envelopeLetterTitle: preset.envelope.h2,
+      envelopeLetterSub: preset.envelope.p1,
+      envelopeStamp: preset.envelope.stamp,
+      certificateBadge: preset.certificate.badge,
+      certificateTitle: $("certTitleInput").value.trim() || preset.certificate.title,
+      certificateTerms: customTerms.length ? customTerms : preset.certificate.terms,
+      witnessName: $("witnessNameInput").value.trim() || preset.certificate.witness,
+      witnessPhotoUrl: chosenWitnessPhotoUrl,
+      wallPhotos: wallSlots.map(s => s.url),
+      memoryNotes: wallSlots.map((s, idx) => (s.note && s.note.trim()) || (customMemories[idx] && customMemories[idx].trim()) || preset.memories[idx]),
+      scratchCoupons: couponsList,
+      secretQuestion: $("secretQuestionInput").value.trim(),
+      secretAnswer: $("secretAnswerInput").value.trim(),
+      secretHint: $("secretHintInput").value.trim(),
+      themeColors: preset.theme,
+      musicUrl: chosenSongUrl,
+      songTitle: chosenSongTitle,
+      voiceNoteUrl: chosenVoiceUrl,
+      voiceNoteTitle: $("voiceTitleInput").value.trim(),
+      sender,
+      receiver,
+      message,
+      photos: files.map(f => URL.createObjectURL(f))
+    });
+    show(1);
+  };
+
+  history.replaceState({n:0},"",location.pathname);
+  show(0,false);
+} else {
+  /* ==========================================================
+     VIEW MODE (Backend API Fetch)
+  ========================================================== */
+  history.replaceState({n:1},"",location.search+"#s1");
+  $("pg0").classList.add("hidden");
+  
+  (async()=>{
+    let d = null;
+    try {
+      const res = await fetch(`/api/surprise/${encodeURIComponent(sid0)}`);
+      if (res.ok) {
+        d = await res.json();
+      }
+    } catch(e) {
+      console.error('Fetch error:', e);
+    }
+    
+    if(!d){
+      $("pg1").innerHTML = `
+        <div class="wrap" style="text-align:center;padding-top:100px;">
+          <h2>This link doesn't look right</h2>
+          <p style="margin-top:10px;color:var(--mut);">Ask the sender to share the link again, or create your own!</p>
+          <a class="btn" href="/" style="margin-top:24px;">Create an E-Card ✿</a>
+        </div>`;
+      $("pg1").classList.remove("hidden");
+      return;
+    }
+    
+    render(d); 
+    show(1,false);
+  })();
+}
+
+/* ==========================================================
+   MODAL & BACKEND UPLOAD
+========================================================== */
+const states = ["sPay","sBusy","sFail","sDone"];
+const setState = s => states.forEach(x => $(x).classList.toggle("hidden", x!==s));
+
+$("genBtn").onclick = () => {
+  $("modal").classList.remove("hidden");
+  setState(pending && pending.done ? "sDone" : "sPay");
+};
+
+$("mClose").onclick = () => { 
+  if(!$("sBusy").classList.contains("hidden")) return; 
+  $("modal").classList.add("hidden"); 
+};
+
+$("payBtn").onclick = () => finalizeUpload();
+$("retryBtn").onclick = () => finalizeUpload();
+
+async function finalizeUpload(){
+  setState("sBusy");
+  try{
+    const sender = $("sender").value.trim();
+    const receiver = $("receiver").value.trim();
+    const message = $("message").value.trim();
+    const preset = EVENT_PRESETS[currentEvent];
+    const customTitle = currentEvent === "custom" && $("customEventName").value.trim() 
+      ? $("customEventName").value.trim() 
+      : preset.name;
+
+    const customTerms = [];
+    for(let i=0; i<5; i++){
+      const el = $("termInput"+i);
+      if(el && el.value.trim()) customTerms.push(el.value.trim());
+    }
+
+    const customMemories = [];
+    for(let i=0; i<6; i++){
+      const el = $("memInput"+i);
+      if(el && el.value.trim()) customMemories.push(el.value.trim());
+    }
+
+    const couponsList = [];
+    for(let i=0; i<3; i++){
+      const el = $("scratchInput"+i);
+      if(el && el.value.trim()) couponsList.push(el.value.trim());
+    }
+
+    const formData = new FormData();
+    formData.append("sender", sender);
+    formData.append("receiver", receiver);
+    formData.append("message", message);
+    formData.append("eventType", currentEvent);
+    formData.append("eventTitle", customTitle);
+    formData.append("vibe", currentVibe);
+    formData.append("envelopeLetterTitle", preset.envelope.h2);
+    formData.append("envelopeLetterSub", preset.envelope.p1);
+    formData.append("envelopeStamp", preset.envelope.stamp);
+    formData.append("certificateBadge", preset.certificate.badge);
+    formData.append("certificateTitle", $("certTitleInput").value.trim() || preset.certificate.title);
+    formData.append("certificateTerms", JSON.stringify(customTerms.length ? customTerms : preset.certificate.terms));
+    formData.append("witnessType", currentWitnessType);
+    formData.append("witnessName", $("witnessNameInput").value.trim() || preset.certificate.witness);
+    
+    // Memory Notes synced from wallSlots
+    const finalMemories = wallSlots.map((s, idx) => {
+      return (s.note && s.note.trim()) || (customMemories[idx] && customMemories[idx].trim()) || preset.memories[idx];
+    });
+    formData.append("memoryNotes", JSON.stringify(finalMemories));
+
+    // Custom Wall Photos (Viral memes or uploaded personal photos)
+    let uploadWallCount = 0;
+    const wallConfig = wallSlots.map((s) => {
+      if (s.file) {
+        return 'upload:' + (uploadWallCount++);
+      }
+      return s.url;
+    });
+    formData.append("wallPhotosConfig", JSON.stringify(wallConfig));
+
+    formData.append("scratchCoupons", JSON.stringify(couponsList));
+    formData.append("secretQuestion", $("secretQuestionInput").value.trim());
+    formData.append("secretAnswer", $("secretAnswerInput").value.trim());
+    formData.append("secretHint", $("secretHintInput").value.trim());
+    formData.append("themeColors", JSON.stringify(preset.theme));
+    formData.append("payment_id", "FREE-LOCAL");
+
+    // Custom background song
+    const songInput = $("songFileInput");
+    if (songInput && songInput.files && songInput.files[0]) {
+      formData.append("song", songInput.files[0]);
+    }
+    const songTitleVal = $("songTitleInput").value.trim();
+    if (songTitleVal) {
+      formData.append("songTitle", songTitleVal);
+    }
+
+    // Voice note (recorded or uploaded)
+    if (selectedVoiceBlob) {
+      formData.append("voiceNote", selectedVoiceBlob, "voice-note.webm");
+    }
+    const voiceTitleVal = $("voiceTitleInput").value.trim();
+    if (voiceTitleVal) {
+      formData.append("voiceNoteTitle", voiceTitleVal);
+    }
+
+    // Witness Photo
+    if (selectedWitnessPhoto) {
+      formData.append("witnessPhoto", selectedWitnessPhoto);
+    }
+
+    // The 3 couple photos
+    for(let i=0; i<3; i++){
+      if(files[i]){
+        const blob = await shrink(files[i]);
+        formData.append("photos", blob, `photo-${i+1}.jpg`);
+      }
+    }
+
+    // Custom uploaded wall photos
+    for(let i=0; i<6; i++){
+      if(wallSlots[i] && wallSlots[i].file){
+        const wallBlob = await shrink(wallSlots[i].file);
+        formData.append("wallPhotos", wallBlob, `wall-${i+1}.jpg`);
+      }
+    }
+
+    const response = await fetch("/api/create", {
+      method: "POST",
+      body: formData
+    });
+
+    if(!response.ok){
+      const errText = await response.text();
+      throw new Error(`Upload error (${response.status}): ${errText}`);
+    }
+
+    const result = await response.json();
+    pending = { sid: result.id, done: true };
+
+    const fullLink = `${window.location.origin}/?id=${result.id}`;
+    $("shareLink").textContent = fullLink;
+    $("openLinkBtn").href = fullLink;
+
+    $("qr").innerHTML = "";
+    new QRCode($("qr"), {
+      text: fullLink,
+      width: 190,
+      height: 190,
+      colorDark: "#1f3a44",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.H
+    });
+
+    $("copyBtn").onclick = () => {
+      navigator.clipboard.writeText(fullLink);
+      $("copyBtn").textContent = "Copied! ✓";
+      setTimeout(() => $("copyBtn").textContent = "Copy link", 2500);
+    };
+
+    $("dlBtn").onclick = () => {
+      const canvas = $("qr").querySelector("canvas");
+      if(canvas){
+        const a = document.createElement("a");
+        a.href = canvas.toDataURL("image/png");
+        a.download = `ecard-qr-${result.id.slice(0,6)}.png`;
+        a.click();
+      }
+    };
+
+    setState("sDone");
+  } catch(e) {
+    console.error("Upload failed:", e);
+    $("failMsg").textContent = e.message;
+    setState("sFail");
+  }
+}
+
+function shrink(file, max=1600){
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => {
+      const s = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width * s);
+      c.height = Math.round(img.height * s);
+      const ctx = c.getContext("2d");
+      ctx.drawImage(img, 0, 0, c.width, c.height);
+      c.toBlob(b => b ? res(b) : rej(new Error("Image compression failed")), "image/jpeg", 0.90);
+    };
+    img.onerror = () => rej(new Error("Could not read image file."));
+    img.src = URL.createObjectURL(file);
+  });
+}
+</script>
+</body>
+</html>

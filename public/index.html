@@ -2490,14 +2490,13 @@
       <h1 class="title" id="vTitle"></h1>
       <span class="ribbon" id="vRibbon"></span>
       <div class="hero">
-        <div class="polaroid"><img id="heroImg" src="assets/mini2.gif" alt="Memory"
-            onerror="this.src='assets/mini1.gif'"></div>
+        <div class="polaroid"><img id="heroImg" alt="Memory"></div>
         <div class="msg" id="vMsg"></div>
       </div>
       <div class="minis" id="minis"></div>
 
       <div class="player" id="musicPlayerBox">
-        <img id="pArt" src="assets/mini1.gif" alt="Album Art" onerror="this.src='assets/mini1.gif'">
+        <img id="pArt" alt="Album Art">
         <div class="pm">
           <div class="now" id="pNowLabel">NOW PLAYING</div>
           <h3 id="pSongTitle">Our Song</h3><small id="pSongArtist">the soundtrack of us</small>
@@ -2534,7 +2533,7 @@
           <h2 id="certHeading">Certified Special Human</h2>
           <p id="certIntro">This is to certify that</p>
           <div class="who" id="cWho"></div>
-          <img class="cph" id="cPh" alt="Photo" onerror="this.src='assets/mini1.gif'">
+          <img class="cph" id="cPh" alt="Photo">
           <p id="certSubText">is officially recognized with these lifelong privileges &amp; duties:</p>
           <ul class="terms" id="certTermsList"></ul>
           <div class="sigs">
@@ -2577,11 +2576,11 @@
       </div>
 
       <div class="letter2">
-        <div class="pp pa"><img id="lp0" alt="Memory 1" onerror="this.src='assets/mini1.gif'"></div>
-        <div class="pp pb"><img id="lp1" alt="Memory 2" onerror="this.src='assets/mini2.gif'"></div>
-        <div class="pp pc"><img id="lp2" alt="Memory 3" onerror="this.src='assets/mini3.gif'"></div>
+        <div class="pp pa"><img id="lp0" alt="Memory 1"></div>
+        <div class="pp pb"><img id="lp1" alt="Memory 2"></div>
+        <div class="pp pc"><img id="lp2" alt="Memory 3"></div>
         <div class="note" id="note"></div>
-        <img class="cat2" id="catImg2" src="assets/cat.gif" alt="Cat sticker" onerror="this.src='assets/cat.gif'">
+        <img class="cat2" id="catImg2" src="assets/cat.gif" alt="Cat sticker">
       </div>
 
       <div class="genbox hidden" id="genbox">
@@ -3482,9 +3481,9 @@
     ];
     const COUPLE_GIF_ASSETS = ALL_ASSET_GIFS;
     const DEF = [
-      "assets/mini1.gif",
-      "assets/mini2.gif",
-      "assets/mini3.gif"
+      "memes/viral_2.jpg",
+      "memes/viral_4.jpg",
+      "memes/viral_6.jpg"
     ];
     const MINI_GIFS = [
       "assets/mini1.gif",
@@ -4831,12 +4830,11 @@
         const encoded = encodeCardData(serverRecord || clientRecord);
         const shareBase = getAppBaseUrl(true);
 
-        // CRITICAL: When server successfully stores the surprise, fullLink ONLY needs the short id parameter (~44 chars).
-        // This generates a low-density, high-contrast Version 3 QR code that phone cameras scan instantly.
-        if (serverSuccess && resultId) {
-          fullLink = `${shareBase}?id=${resultId}`;
+        // Include card payload so cards and photos load instantly across any device even if Vercel serverless cold-starts
+        if (encoded) {
+          fullLink = `${shareBase}?id=${resultId}&card=${encoded}`;
         } else {
-          fullLink = encoded ? `${shareBase}?id=${resultId}&card=${encoded}` : `${shareBase}?id=${resultId}`;
+          fullLink = `${shareBase}?id=${resultId}`;
         }
 
         pending = { sid: resultId, done: true, fullLink };

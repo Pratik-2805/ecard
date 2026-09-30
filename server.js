@@ -160,6 +160,37 @@ app.get('/api/info', (req, res) => {
   });
 });
 
+// Cloud Storage Helper: uploads binary files to permanent public CDN so images never 404 in serverless / Vercel
+async function uploadToCloud(filePath, originalname, mimetype) {
+  try {
+    if (!filePath || !fs.existsSync(filePath)) return null;
+    const fileBuffer = fs.readFileSync(filePath);
+    const form = new FormData();
+    form.append('reqtype', 'fileupload');
+    form.append('fileToUpload', new Blob([fileBuffer], { type: mimetype || 'image/jpeg' }), originalname || 'photo.jpg');
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 9000);
+
+    const res = await fetch('https://catbox.moe/user/api.php', {
+      method: 'POST',
+      body: form,
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+
+    if (res.ok) {
+      const url = (await res.text()).trim();
+      if (url.startsWith('http://') || url.startsWith('https://')) {
+        return url;
+      }
+    }
+  } catch (err) {
+    console.warn('Cloud upload notice:', err.message);
+  }
+  return null;
+}
+
 // API: Create new surprise with uploaded photos, song, voice note, and custom modules
 app.post('/api/create', upload.fields([
   { name: 'photos', maxCount: 6 },
@@ -167,7 +198,7 @@ app.post('/api/create', upload.fields([
   { name: 'song', maxCount: 1 },
   { name: 'voiceNote', maxCount: 1 },
   { name: 'witnessPhoto', maxCount: 1 }
-]), (req, res) => {
+]), async (req, res) => {
   try {
     const sid = req.surpriseId;
     const { 
@@ -204,11 +235,22 @@ app.post('/api/create', upload.fields([
       return res.status(400).json({ error: 'Sender and receiver names are required.' });
     }
 
-    // Process uploaded photos
+    // Process uploaded couple photos (permanent cloud CDN so they work on Vercel & shared links)
     const photoFiles = req.files && req.files['photos'] ? req.files['photos'] : [];
-    const photoUrls = photoFiles.map(file => {
-      return `uploads/${sid}/${file.filename}`;
-    });
+    const photoUrls = await Promise.all(
+      photoFiles.map(async (file) => {
+        const cloudUrl = await uploadToCloud(file.path, file.originalname, file.mimetype);
+        if (cloudUrl) return cloudUrl;
+        // Fallback: convert to base64 data URL so Vercel never 404s on fresh lambdas
+        try {
+          const buf = fs.readFileSync(file.path);
+          if (buf.length < 5 * 1024 * 1024) {
+            return `data:${file.mimetype || 'image/jpeg'};base64,${buf.toString('base64')}`;
+          }
+        } catch (e) { }
+        return `uploads/${sid}/${file.filename}`;
+      })
+    );
 
     // Process custom wall photos (viral library memes or personal uploads)
     let finalWallPhotos = [];
@@ -226,23 +268,31 @@ app.post('/api/create', upload.fields([
 
     if (Array.isArray(parsedWallConfig) && parsedWallConfig.length === 6) {
       const defaultWallMemes = [1, 2, 3, 4, 5, 6].map(i => `memes/viral_${i}.jpg`);
-      finalWallPhotos = parsedWallConfig.map((item, idx) => {
-        if (typeof item === 'string' && item.startsWith('upload:')) {
-          if (wallPhotoFiles[wallUploadIdx]) {
-            const f = wallPhotoFiles[wallUploadIdx++];
-            return `uploads/${sid}/${f.filename}`;
+      finalWallPhotos = await Promise.all(
+        parsedWallConfig.map(async (item, idx) => {
+          if (typeof item === 'string' && item.startsWith('upload:')) {
+            if (wallPhotoFiles[wallUploadIdx]) {
+              const f = wallPhotoFiles[wallUploadIdx++];
+              const cloudUrl = await uploadToCloud(f.path, f.originalname, f.mimetype);
+              if (cloudUrl) return cloudUrl;
+              try {
+                const buf = fs.readFileSync(f.path);
+                if (buf.length < 3 * 1024 * 1024) {
+                  return `data:${f.mimetype || 'image/jpeg'};base64,${buf.toString('base64')}`;
+                }
+              } catch (e) { }
+              return `uploads/${sid}/${f.filename}`;
+            }
+            return defaultWallMemes[idx] || 'memes/viral_1.jpg';
+          }
+          if (typeof item === 'string' && item.trim()) {
+            const trimmed = item.trim();
+            return trimmed.replace(/^\//, '');
           }
           return defaultWallMemes[idx] || 'memes/viral_1.jpg';
-        }
-        if (typeof item === 'string' && item.trim()) {
-          const trimmed = item.trim();
-          // Remove leading slash for safe relative paths across subpaths
-          return trimmed.replace(/^\//, '');
-        }
-        return defaultWallMemes[idx] || 'memes/viral_1.jpg';
-      });
+        })
+      );
     } else {
-      // Default to first 6 viral library memes
       finalWallPhotos = [1, 2, 3, 4, 5, 6].map(i => `memes/viral_${i}.jpg`);
     }
 
@@ -251,7 +301,8 @@ app.post('/api/create', upload.fields([
     let customSongTitle = songTitle || '';
     if (req.files && req.files['song'] && req.files['song'][0]) {
       const songFile = req.files['song'][0];
-      customSongUrl = `uploads/${sid}/${songFile.filename}`;
+      const cloudUrl = await uploadToCloud(songFile.path, songFile.originalname, songFile.mimetype);
+      customSongUrl = cloudUrl || `uploads/${sid}/${songFile.filename}`;
       if (!customSongTitle) {
         customSongTitle = songFile.originalname.replace(/\.[^/.]+$/, "");
       }
@@ -261,14 +312,25 @@ app.post('/api/create', upload.fields([
     let voiceNoteUrl = null;
     if (req.files && req.files['voiceNote'] && req.files['voiceNote'][0]) {
       const vFile = req.files['voiceNote'][0];
-      voiceNoteUrl = `uploads/${sid}/${vFile.filename}`;
+      const cloudUrl = await uploadToCloud(vFile.path, vFile.originalname, vFile.mimetype);
+      voiceNoteUrl = cloudUrl || `uploads/${sid}/${vFile.filename}`;
     }
 
     // Process optional witness photo
     let witnessPhotoUrl = null;
     if (req.files && req.files['witnessPhoto'] && req.files['witnessPhoto'][0]) {
       const wFile = req.files['witnessPhoto'][0];
-      witnessPhotoUrl = `uploads/${sid}/${wFile.filename}`;
+      const cloudUrl = await uploadToCloud(wFile.path, wFile.originalname, wFile.mimetype);
+      if (cloudUrl) {
+        witnessPhotoUrl = cloudUrl;
+      } else {
+        try {
+          const buf = fs.readFileSync(wFile.path);
+          witnessPhotoUrl = `data:${wFile.mimetype || 'image/jpeg'};base64,${buf.toString('base64')}`;
+        } catch (e) {
+          witnessPhotoUrl = `uploads/${sid}/${wFile.filename}`;
+        }
+      }
     }
 
     let parsedTerms = null;

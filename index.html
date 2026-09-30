@@ -684,40 +684,6 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: var(--t
 }
 .cassette-time { font-size: 12px; color: #a0b2bc; font-variant-numeric: tabular-nums; }
 
-/* Scratch Cards Section */
-.scratch-section { margin-top: 48px; }
-.scratch-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px; }
-.scratch-card-box {
-  position: relative;
-  aspect-ratio: 16/10;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 10px 28px rgba(0,0,0,0.12);
-  background: #fff;
-}
-.scratch-content {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  padding: 16px;
-  background: linear-gradient(135deg, #fffdf8, #fff1f3);
-  text-align: center;
-  font-weight: 700;
-  font-size: 14px;
-  color: var(--teal-d);
-  line-height: 1.4;
-  user-select: none;
-}
-.scratch-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  cursor: grab;
-  touch-action: none;
-}
-.scratch-canvas:active { cursor: grabbing; }
 
 /* Letter with Pinned Photos */
 .letter2 { position: relative; margin-top: 44px; }
@@ -786,10 +752,10 @@ a.btn { display: inline-block; text-decoration: none; }
 .mbox p { color: var(--mut); font-size: 14px; }
 .x { position: absolute; top: 12px; right: 16px; background: none; font-size: 26px; color: var(--mut); cursor: pointer; line-height: 1; border: none; }
 .big { font-family: Fraunces, serif; font-size: 34px; margin: 14px 0; color: var(--teal-d); }
-#qr { display: flex; justify-content: center; align-items: center; margin: 14px auto; padding: 12px; background: #fafbfc; border-radius: 16px; width: fit-content; border: 1px solid #edf2f7; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }
-#qr canvas, #qr img { display: block; border-radius: 8px; border: 3px solid #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+#qr { display: flex; justify-content: center; align-items: center; margin: 12px auto; padding: 12px; background: #ffffff; border-radius: 18px; width: fit-content; border: 1.5px solid #e2e8f0; box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
+#qr canvas, #qr img { display: block; border-radius: 6px; image-rendering: -webkit-optimize-contrast; image-rendering: pixelated; }
 
-.share-actions-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0 12px; }
+.share-actions-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0 10px; }
 .btn-share-link {
   background: var(--teal-d);
   color: #fff;
@@ -823,6 +789,122 @@ a.btn { display: inline-block; text-decoration: none; }
   font-size: 14px;
 }
 .btn-share-qr:hover { background: rgba(31,58,68,0.06); transform: translateY(-1px); }
+
+.share-apps-container {
+  margin: 12px 0 8px;
+  padding: 12px 10px;
+  background: #f8fafc;
+  border: 1.5px solid #edf2f7;
+  border-radius: 16px;
+  transition: all 0.25s ease;
+}
+.share-apps-container.highlight {
+  border-color: #25d366;
+  background: #f0fdf4;
+  box-shadow: 0 0 0 3px rgba(37,211,102,0.18);
+  animation: pulseHighlight 0.6s ease;
+}
+@keyframes pulseHighlight {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+.share-apps-header {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--mut);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.share-apps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.app-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 9px 4px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text);
+  transition: all 0.16s ease;
+  user-select: none;
+}
+.app-chip:hover, .app-chip:active {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.app-chip.app-whatsapp {
+  color: #075e54;
+  border-color: #c7f2d4;
+  background: #f3fcf6;
+}
+.app-chip.app-whatsapp:hover {
+  background: #e1f7e9;
+}
+.app-chip.app-sms {
+  color: #1e40af;
+  border-color: #dbeafe;
+  background: #eff6ff;
+}
+.app-chip.app-sms:hover {
+  background: #dbeafe;
+}
+.app-chip.app-telegram {
+  color: #0284c7;
+  border-color: #e0f2fe;
+  background: #f0f9ff;
+}
+.app-chip.app-telegram:hover {
+  background: #e0f2fe;
+}
+.save-qr-wrap {
+  margin-top: 8px;
+  display: flex;
+  justify-content: center;
+}
+.save-qr-link {
+  background: none;
+  border: none;
+  color: var(--mut);
+  font-size: 11.5px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: color 0.15s;
+}
+.save-qr-link:hover {
+  color: var(--teal-d);
+  text-decoration: underline;
+}
+.share-status-toast {
+  display: none;
+  margin: 10px auto 0;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #065f46;
+  background: #d1fae5;
+  border-radius: 999px;
+  width: fit-content;
+  box-shadow: 0 2px 8px rgba(6,95,70,0.12);
+}
 
 .link-bar {
   display: flex;
@@ -873,7 +955,6 @@ a.btn { display: inline-block; text-decoration: none; }
 @media (max-width: 700px) {
   .hero { grid-template-columns: 1fr; }
   .wall { grid-template-columns: repeat(2, 1fr); }
-  .scratch-grid { grid-template-columns: 1fr; }
   .row { grid-template-columns: 1fr; }
   .minis { gap: 10px; }
   .minis .mini-card { width: 29vw; height: 29vw; padding: 5px; }
@@ -1340,9 +1421,9 @@ a.btn { display: inline-block; text-decoration: none; }
     <label for="message">Your personal message</label>
     <textarea id="message" rows="4" maxlength="500" placeholder="Write something sweet, funny, or memorable..."></textarea>
 
-    <!-- Deep Customization & Interactive Add-ons (Points 2, 3, 7) -->
+    <!-- Deep Customization & Interactive Add-ons (Points 2, 7) -->
     <div class="accordion">
-      <button type="button" class="acc-toggle" id="accToggle">🎁 Special Add-ons: Secret Passcode, Scratch Coupons &amp; Witness (Optional) ▾</button>
+      <button type="button" class="acc-toggle" id="accToggle">🎁 Special Add-ons: Secret Passcode &amp; Witness (Optional) ▾</button>
       
       <div class="acc-body hidden" id="accBody">
         
@@ -1361,17 +1442,6 @@ a.btn { display: inline-block; text-decoration: none; }
               <label>Helpful Hint</label>
               <input type="text" id="secretHintInput" placeholder="e.g. Starts with C...">
             </div>
-          </div>
-        </div>
-
-        <!-- Scratch-Off Coupons & Promises (Point 3) -->
-        <div class="addon-card">
-          <div class="addon-title">🎟️ Scratch-Off Love Vouchers &amp; Promises (Optional)</div>
-          <div class="addon-desc">Interactive scratch-off cards that the recipient rubs with their finger/mouse to reveal your promises!</div>
-          <div id="scratchInputsBox">
-            <div class="term-input-row"><span>1.</span><input type="text" id="scratchInput0" placeholder="Coupon 1"></div>
-            <div class="term-input-row"><span>2.</span><input type="text" id="scratchInput1" placeholder="Coupon 2"></div>
-            <div class="term-input-row"><span>3.</span><input type="text" id="scratchInput2" placeholder="Coupon 3"></div>
           </div>
         </div>
 
@@ -1484,7 +1554,7 @@ a.btn { display: inline-block; text-decoration: none; }
   <div class="wall" id="wall"></div>
 </div></section>
 
-<!-- Page 4: Certificate & Scratch Cards -->
+<!-- Page 4: Official Certificate -->
 <section id="pg4" class="page hidden"><div class="sec" style="max-width:640px">
   <p class="eyebrow" id="certEyebrow">OFFICIALLY OFFICIAL</p>
   <h2 class="title sub" id="certSectionTitle">the official certificate</h2>
@@ -1512,13 +1582,7 @@ a.btn { display: inline-block; text-decoration: none; }
 
   <button class="btn" id="dlCert" style="margin-top:26px">Download certificate ⬇</button>
 
-  <!-- Scratch Cards Section (Point 3) -->
-  <div class="scratch-section hidden" id="scratchSection">
-    <p class="eyebrow" style="margin-top:36px;">SCRATCH TO REVEAL</p>
-    <h2 class="title sub" style="font-size:28px;margin:6px 0 12px;">Your Special Promises</h2>
-    <p class="hand" style="font-size:23px;color:var(--teal-d);">rub with your finger or mouse to scratch &amp; reveal ✿</p>
-    <div class="scratch-grid" id="scratchGrid"></div>
-  </div>
+
 </div></section>
 
 <!-- Page 5: Note, Voice Cassette & Final Wishes -->
@@ -1613,12 +1677,54 @@ a.btn { display: inline-block; text-decoration: none; }
         </button>
       </div>
 
+      <!-- Direct Sharable Apps Row (WhatsApp, SMS, Telegram) -->
+      <div class="share-apps-container" id="shareAppsSection">
+        <div class="share-apps-header">
+          <span>Or share directly to apps:</span>
+        </div>
+        <div class="share-apps-grid">
+          <button type="button" class="app-chip app-whatsapp" id="appShareWhatsApp">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.42a8.225 8.225 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.196 8.196 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24m4.52 11.66c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.03-1.25-.75-.67-1.26-1.5-1.41-1.75-.14-.25-.02-.39.11-.51.11-.11.25-.29.37-.44.13-.15.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.34-.76-1.84-.2-.49-.4-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.24.9 2.44 1.03 2.61.13.17 1.78 2.71 4.3 3.8.6.26 1.07.41 1.44.53.61.19 1.16.17 1.6.1.49-.07 1.47-.6 1.68-1.18.21-.59.21-1.09.15-1.19-.07-.1-.23-.16-.48-.28z"/>
+            </svg>
+            <span>WhatsApp</span>
+          </button>
+
+          <button type="button" class="app-chip app-sms" id="appShareSms">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span>Messages</span>
+          </button>
+
+          <button type="button" class="app-chip app-telegram" id="appShareTelegram">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 0 0-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+            </svg>
+            <span>Telegram</span>
+          </button>
+        </div>
+
+        <div class="save-qr-wrap">
+          <button type="button" class="save-qr-link" id="explicitSaveQrBtn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Save QR Code Image to Photos
+          </button>
+        </div>
+      </div>
+
       <!-- Single-Line Clean Link Bar (No giant multiline text block) -->
       <div class="link-bar" id="linkBar">
         <input type="text" readonly id="shareLinkInput" class="link-input" spellcheck="false" />
         <button type="button" class="copy-icon-btn" id="quickCopyBtn" title="Copy link">Copy</button>
         <a id="openLinkBtn" target="_blank" class="open-icon-btn" title="Open in new tab">Open ↗</a>
       </div>
+      
+      <div id="shareToast" class="share-status-toast"></div>
     </div>
   </div>
 </div>
@@ -1713,11 +1819,6 @@ const EVENT_PRESETS = {
       answer: "Cafe",
       hint: "Think about where we first got coffee..."
     },
-    scratchCoupons: [
-      "🎟️ 1x Head Massage & Unlimited Cuddles",
-      "🎟️ 1x You Pick the Movie (No Complaints!)",
-      "🎟️ 1x Get Out of 1 Silly Argument Free Pass"
-    ],
     voicePrompt: "Record a sweet voice note for him...",
     signoff: "always yours"
   },
@@ -1776,11 +1877,6 @@ const EVENT_PRESETS = {
       answer: "Your smile",
       hint: "It lights up the whole room..."
     },
-    scratchCoupons: [
-      "🎟️ 1x Full Princess Treatment Day (Zero Chores)",
-      "🎟️ 1x Late Night Boba & Dessert Run on Me",
-      "🎟️ 1x Warm Hug & Being Wrapped Like a Burrito"
-    ],
     voicePrompt: "Leave a voice note telling her she's beautiful...",
     signoff: "forever yours"
   },
@@ -1839,11 +1935,6 @@ const EVENT_PRESETS = {
       answer: "Goa trip",
       hint: "Think about that wild vacation..."
     },
-    scratchCoupons: [
-      "🎟️ 1x Free Food & Drinks on My Tab",
-      "🎟️ 1x Unfiltered 2 AM Vent Session Pass",
-      "🎟️ 1x Emergency Escape Call from a Bad Date"
-    ],
     voicePrompt: "Record a funny roast or heartfelt voice note...",
     signoff: "your favorite human"
   },
@@ -1902,11 +1993,6 @@ const EVENT_PRESETS = {
       answer: "Perfect",
       hint: "Our romantic song..."
     },
-    scratchCoupons: [
-      "🎟️ 1x Candlelight Dinner & Slow Dance at Home",
-      "🎟️ 1x 100 Free Kisses (No Expiration Date)",
-      "🎟️ 1x Weekend Trip Planned Entirely by Me"
-    ],
     voicePrompt: "Record a secret romantic love message...",
     signoff: "with all my heart"
   },
@@ -1965,11 +2051,6 @@ const EVENT_PRESETS = {
       answer: "Airport",
       hint: "Where our reunion hug happens..."
     },
-    scratchCoupons: [
-      "🎟️ 1x Non-Stop 10-Minute Reunion Hug",
-      "🎟️ 1x Sleep on Facetime Pass (No Hanging Up)",
-      "🎟️ 1x Your Favorite Home-Cooked Meal on Arrival"
-    ],
     voicePrompt: "Record your voice for when they miss you at 2 AM...",
     signoff: "missing you always"
   },
@@ -2028,11 +2109,6 @@ const EVENT_PRESETS = {
       answer: "Under the stars",
       hint: "That chilly romantic evening..."
     },
-    scratchCoupons: [
-      "🎟️ 1x Surprise Date Night Planned 100% by Me",
-      "🎟️ 1x Re-creating Our First Date Together",
-      "🎟️ 1x Spa Day & Complete Pampering Pass"
-    ],
     voicePrompt: "Record an anniversary voice message...",
     signoff: "with endless love"
   },
@@ -2091,11 +2167,6 @@ const EVENT_PRESETS = {
       answer: "Happiness",
       hint: "Starts with H..."
     },
-    scratchCoupons: [
-      "🎟️ 1x You Don't Lift a Single Finger All Day",
-      "🎟️ 1x First & Biggest Slice of Birthday Cake",
-      "🎟️ 1x Free Gift of Your Choice on My Tab"
-    ],
     voicePrompt: "Sing happy birthday or say something sweet...",
     signoff: "cheers to you"
   },
@@ -2154,11 +2225,6 @@ const EVENT_PRESETS = {
       answer: "Love",
       hint: "The feeling we share..."
     },
-    scratchCoupons: [
-      "🎟️ 1x Special Wish Granted by Me",
-      "🎟️ 1x Day of Complete Relaxation & Treat",
-      "🎟️ 1x Unlimited Big Hugs Voucher"
-    ],
     voicePrompt: "Record a custom audio message...",
     signoff: "warmest wishes"
   }
@@ -2171,7 +2237,7 @@ const $ = i => document.getElementById(i);
 const esc = s => String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const urlParams = new URLSearchParams(location.search);
 const hashMatch = location.hash.match(/#card=([^&]+)/);
-const cardParam = urlParams.get("card") || (hashMatch ? hashMatch[1] : null);
+const cardParam = urlParams.get("card") || urlParams.get("c") || (hashMatch ? hashMatch[1] : null);
 const sid0 = urlParams.get("id");
 const mode = (sid0 || cardParam) ? "view" : "create";
 const first = mode==="view" ? 1 : 0;
@@ -2261,11 +2327,6 @@ function encodeCardData(record) {
         compact.mn = record.memoryNotes;
       }
     }
-    if (Array.isArray(record.scratchCoupons) && record.scratchCoupons.length) {
-      if (JSON.stringify(record.scratchCoupons) !== JSON.stringify(preset.scratch.coupons)) {
-        compact.sc = record.scratchCoupons;
-      }
-    }
 
     const cleanPhotos = (record.photos || []).filter(u => typeof u === 'string' && !u.startsWith('data:'));
     if (cleanPhotos.length) compact.p = cleanPhotos;
@@ -2324,7 +2385,6 @@ function decodeCardData(encoded) {
       witnessPhotoUrl: '',
       wallPhotos: (Array.isArray(c.wp) && c.wp.length) ? c.wp : preset.memories.map((_, i) => `library/viral_${(i%6)+1}.jpg`),
       memoryNotes: (Array.isArray(c.mn) && c.mn.length) ? c.mn : preset.memories,
-      scratchCoupons: (Array.isArray(c.sc) && c.sc.length) ? c.sc : preset.scratch.coupons,
       secretQuestion: c.sq || '',
       secretAnswer: c.sa || '',
       secretHint: c.sh || '',
@@ -2345,9 +2405,9 @@ function renderQrCode(container, text) {
     try {
       new QRCode(container, {
         text: text,
-        width: 190,
-        height: 190,
-        colorDark: "#1f3a44",
+        width: 200,
+        height: 200,
+        colorDark: "#111827",
         colorLight: "#ffffff",
         correctLevel: (QRCode.CorrectLevel && QRCode.CorrectLevel.M) || 0
       });
@@ -2361,12 +2421,12 @@ function renderQrCode(container, text) {
   if (!rendered || !container.children.length) {
     const qrImg = document.createElement("img");
     qrImg.alt = "E-Card QR Code";
-    qrImg.width = 190;
-    qrImg.height = 190;
+    qrImg.width = 200;
+    qrImg.height = 200;
     qrImg.style.borderRadius = "8px";
     qrImg.style.border = "4px solid #fff";
     qrImg.style.boxShadow = "0 4px 14px rgba(0,0,0,0.1)";
-    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=190x190&data=${encodeURIComponent(text)}&margin=10`;
+    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(text)}&margin=10`;
     container.appendChild(qrImg);
   }
 }
@@ -2759,13 +2819,6 @@ function selectEvent(evKey) {
     $("secretHintInput").placeholder = preset.secretLock.hint;
   }
 
-  // Adapt Scratch Coupons defaults (Point 3)
-  if (preset.scratchCoupons) {
-    preset.scratchCoupons.forEach((coupon, i) => {
-      const el = $("scratchInput" + i);
-      if (el) el.value = coupon;
-    });
-  }
 
   // Adapt Witness defaults (Point 7)
   $("witnessNameInput").value = preset.certificate.witness;
@@ -2876,7 +2929,7 @@ function populateAccordionFields(preset) {
 $("accToggle").onclick = () => {
   const isHidden = $("accBody").classList.toggle("hidden");
   $("accToggle").textContent = isHidden 
-    ? "🎁 Special Add-ons: Secret Passcode, Scratch Coupons & Witness (Optional) ▾" 
+    ? "🎁 Special Add-ons: Secret Passcode & Witness (Optional) ▾" 
     : "🎁 Hide Special Add-ons ▴";
 };
 
@@ -3184,15 +3237,6 @@ function render(d){
   const termsList = (d.certificateTerms && d.certificateTerms.length) ? d.certificateTerms : preset.certificate.terms;
   $("certTermsList").innerHTML = termsList.map(t => `<li>${esc(t)}</li>`).join("");
 
-  // Scratch Cards (Point 3)
-  const coupons = (d.scratchCoupons && d.scratchCoupons.length) ? d.scratchCoupons : (preset.scratchCoupons || []);
-  if (coupons && coupons.length) {
-    $("scratchSection").classList.remove("hidden");
-    setupScratchCards(coupons);
-  } else {
-    $("scratchSection").classList.add("hidden");
-  }
-
   // Page 5: Letter & Voice Note Cassette (Point 1)
   [0,1,2].forEach(i=>{
     const el = $("lp"+i);
@@ -3215,80 +3259,6 @@ function render(d){
 
 if(mode==="view") {
   $("returnBtn").classList.remove("hidden");
-}
-
-/* ==========================================================
-   SCRATCH-OFF CARDS ENGINE (Point 3)
-========================================================== */
-function setupScratchCards(coupons) {
-  const grid = $("scratchGrid");
-  grid.innerHTML = "";
-  
-  coupons.slice(0, 3).forEach((text, idx) => {
-    const cardBox = document.createElement("div");
-    cardBox.className = "scratch-card-box";
-    cardBox.innerHTML = `
-      <div class="scratch-content">${esc(text)}</div>
-      <canvas class="scratch-canvas" id="scCanvas${idx}"></canvas>
-    `;
-    grid.appendChild(cardBox);
-
-    setTimeout(() => initScratchCanvas(cardBox.querySelector("canvas")), 50);
-  });
-}
-
-function initScratchCanvas(canvas) {
-  const rect = canvas.getBoundingClientRect();
-  canvas.width = rect.width;
-  canvas.height = rect.height;
-  const ctx = canvas.getContext("2d");
-
-  // Draw shimmering metallic foil
-  const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-  grad.addColorStop(0, "#d8e2dc");
-  grad.addColorStop(0.5, "#b8c0bc");
-  grad.addColorStop(1, "#9ea8a3");
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // Add decorative foil text
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 13px Inter, sans-serif";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText("✨ SCRATCH WITH FINGER ✨", canvas.width / 2, canvas.height / 2);
-
-  let isDrawing = false;
-  let scratchedPixels = 0;
-  let isRevealed = false;
-
-  function scratch(e) {
-    if (!isDrawing || isRevealed) return;
-    const r = canvas.getBoundingClientRect();
-    const x = (e.clientX || (e.touches && e.touches[0].clientX)) - r.left;
-    const y = (e.clientY || (e.touches && e.touches[0].clientY)) - r.top;
-
-    ctx.globalCompositeOperation = "destination-out";
-    ctx.beginPath();
-    ctx.arc(x, y, 22, 0, Math.PI * 2);
-    ctx.fill();
-
-    scratchedPixels++;
-    if (scratchedPixels > 25 && !isRevealed) {
-      isRevealed = true;
-      if (window.confetti) {
-        confetti({ particleCount: 30, spread: 45, origin: { y: 0.7 } });
-      }
-    }
-  }
-
-  canvas.addEventListener("mousedown", (e) => { isDrawing = true; scratch(e); });
-  canvas.addEventListener("mousemove", scratch);
-  window.addEventListener("mouseup", () => isDrawing = false);
-
-  canvas.addEventListener("touchstart", (e) => { isDrawing = true; scratch(e); });
-  canvas.addEventListener("touchmove", scratch);
-  window.addEventListener("touchend", () => isDrawing = false);
 }
 
 /* ==========================================================
@@ -3498,13 +3468,6 @@ if(mode==="create"){
       if(el && el.value.trim()) customMemories.push(el.value.trim());
     }
 
-    // Collect scratch coupons (Point 3)
-    const couponsList = [];
-    for(let i=0; i<3; i++){
-      const el = $("scratchInput"+i);
-      if(el && el.value.trim()) couponsList.push(el.value.trim());
-    }
-
     const chosenSongTitle = $("songTitleInput").value.trim() || (selectedSongFile ? selectedSongFile.name.replace(/\.[^/.]+$/, "") : "Our Song");
     const chosenSongUrl = selectedSongFile ? URL.createObjectURL(selectedSongFile) : "";
     const chosenVoiceUrl = selectedVoiceBlob ? URL.createObjectURL(selectedVoiceBlob) : "";
@@ -3524,7 +3487,6 @@ if(mode==="create"){
       witnessPhotoUrl: chosenWitnessPhotoUrl,
       wallPhotos: wallSlots.map(s => s.url),
       memoryNotes: wallSlots.map((s, idx) => (s.note && s.note.trim()) || (customMemories[idx] && customMemories[idx].trim()) || preset.memories[idx]),
-      scratchCoupons: couponsList,
       secretQuestion: $("secretQuestionInput").value.trim(),
       secretAnswer: $("secretAnswerInput").value.trim(),
       secretHint: $("secretHintInput").value.trim(),
@@ -3553,7 +3515,7 @@ if(mode==="create"){
   (async()=>{
     let d = null;
     const hashM = location.hash.match(/#card=([^&]+)/);
-    const cParam = urlParams.get("card") || (hashM ? hashM[1] : null);
+    const cParam = urlParams.get("card") || urlParams.get("c") || (hashM ? hashM[1] : null);
 
     // 1. Try Backend API first if sid0 is present
     if (sid0) {
@@ -3664,12 +3626,6 @@ async function finalizeUpload(){
       if(el && el.value.trim()) customMemories.push(el.value.trim());
     }
 
-    const couponsList = [];
-    for(let i=0; i<3; i++){
-      const el = $("scratchInput"+i);
-      if(el && el.value.trim()) couponsList.push(el.value.trim());
-    }
-
     // Memory Notes synced from wallSlots
     const finalMemories = wallSlots.map((s, idx) => {
       return (s.note && s.note.trim()) || (customMemories[idx] && customMemories[idx].trim()) || preset.memories[idx];
@@ -3702,7 +3658,6 @@ async function finalizeUpload(){
     });
     formData.append("wallPhotosConfig", JSON.stringify(wallConfig));
 
-    formData.append("scratchCoupons", JSON.stringify(couponsList));
     formData.append("secretQuestion", $("secretQuestionInput").value.trim());
     formData.append("secretAnswer", $("secretAnswerInput").value.trim());
     formData.append("secretHint", $("secretHintInput").value.trim());
@@ -3815,7 +3770,6 @@ async function finalizeUpload(){
       witnessPhotoUrl: selectedWitnessPhoto ? (await blobToDataUrl(await shrink(selectedWitnessPhoto, 400))) : "",
       wallPhotos: wallDataUrls,
       memoryNotes: finalMemories,
-      scratchCoupons: couponsList,
       secretQuestion: $("secretQuestionInput").value.trim(),
       secretAnswer: $("secretAnswerInput").value.trim(),
       secretHint: $("secretHintInput").value.trim(),
@@ -3836,7 +3790,14 @@ async function finalizeUpload(){
     // Uses server URLs if uploaded, or preset paths, but NEVER raw data: blobs so it stays under 800 chars
     const encoded = encodeCardData(serverRecord || clientRecord);
     const shareBase = getAppBaseUrl(true);
-    fullLink = encoded ? `${shareBase}?id=${resultId}&c=${encoded}` : `${shareBase}?id=${resultId}`;
+    
+    // CRITICAL: When server successfully stores the surprise, fullLink ONLY needs the short id parameter (~44 chars).
+    // This generates a low-density, high-contrast Version 3 QR code that phone cameras scan instantly.
+    if (serverSuccess && resultId) {
+      fullLink = `${shareBase}?id=${resultId}`;
+    } else {
+      fullLink = encoded ? `${shareBase}?id=${resultId}&card=${encoded}` : `${shareBase}?id=${resultId}`;
+    }
 
     pending = { sid: resultId, done: true, fullLink };
 
@@ -3861,16 +3822,62 @@ async function finalizeUpload(){
     // Set state to sDone so the container is visible and has layout dimensions
     setState("sDone");
 
-    // Render the QR code safely
+    // Render the QR code safely (crisp, bold, large modules)
     renderQrCode($("qr"), fullLink);
 
-    // Setup the 2 Primary Action Buttons:
-    // Button 1: Share Link (Web Share API + Clipboard Copy)
+    // Helper functions for sharing & feedback
+    const isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const shareGreeting = `A special surprise e-card from ${sender || 'Someone Special'}! 💌 Open it here:\n${fullLink}`;
+
+    const showShareToast = (msg) => {
+      const toast = $("shareToast");
+      if (toast) {
+        toast.textContent = msg;
+        toast.style.display = "block";
+        clearTimeout(toast._timer);
+        toast._timer = setTimeout(() => { toast.style.display = "none"; }, 3500);
+      }
+    };
+
+    const highlightAppsSection = () => {
+      const sec = $("shareAppsSection");
+      if (sec) {
+        sec.classList.add("highlight");
+        setTimeout(() => sec.classList.remove("highlight"), 1800);
+        sec.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    };
+
+    const openWhatsAppDirect = () => {
+      const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareGreeting)}`;
+      window.open(waUrl, "_blank");
+    };
+
+    const openSmsDirect = () => {
+      const smsUrl = `sms:?body=${encodeURIComponent(shareGreeting)}`;
+      window.location.href = smsUrl;
+    };
+
+    const openTelegramDirect = () => {
+      const tgUrl = `https://t.me/share/url?url=${encodeURIComponent(fullLink)}&text=${encodeURIComponent(`A special surprise e-card from ${sender || 'Someone Special'}! 💌`)}`;
+      window.open(tgUrl, "_blank");
+    };
+
+    const triggerDownload = (url) => {
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `ecard-qr-${resultId.slice(0,6)}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showShareToast("QR Code image saved to photos! 💾");
+    };
+
+    // Button 1: Share Link (Native Share or WhatsApp / Copy)
     const shareLinkBtn = $("shareLinkBtn");
     if (shareLinkBtn) {
       shareLinkBtn.onclick = async () => {
         const textLabel = $("shareLinkBtnText");
-        let shared = false;
         if (navigator.share) {
           try {
             await navigator.share({
@@ -3878,55 +3885,54 @@ async function finalizeUpload(){
               text: `A special surprise e-card from ${sender || 'Someone Special'}! Open it here:`,
               url: fullLink
             });
-            shared = true;
+            if (textLabel) {
+              textLabel.textContent = "Shared! ✓";
+              setTimeout(() => { textLabel.textContent = "Share Link"; }, 2500);
+            }
+            return;
           } catch(err) {
             if (err.name === 'AbortError') return;
           }
         }
         
-        // Also copy to clipboard for convenience
+        // Insecure context (HTTP) or desktop: copy link + open WhatsApp on mobile or highlight apps
         try {
           await navigator.clipboard.writeText(fullLink);
         } catch(e) {}
 
         if (textLabel) {
-          textLabel.textContent = shared ? "Shared! ✓" : "Copied! ✓";
+          textLabel.textContent = "Copied! ✓";
           setTimeout(() => { textLabel.textContent = "Share Link"; }, 2500);
         }
+
+        if (isMobile) {
+          showShareToast("Opening WhatsApp... or choose an app below! 💌");
+          openWhatsAppDirect();
+        } else {
+          showShareToast("Link copied to clipboard! Share using the apps below 💌");
+        }
+        highlightAppsSection();
       };
     }
 
-    // Button 2: Share QR (Native Image Share + Image Download)
+    // Button 2: Share QR (Native Image Share or Mobile Apps Drawer - NEVER auto-download on share!)
     const shareQrBtn = $("shareQrBtn");
     if (shareQrBtn) {
       shareQrBtn.onclick = async () => {
         const textLabel = $("shareQrBtnText");
         const canvas = $("qr").querySelector("canvas");
-        const img = $("qr").querySelector("img");
 
-        const triggerDownload = (url) => {
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = `ecard-qr-${resultId.slice(0,6)}.png`;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          if (textLabel) {
-            textLabel.textContent = "Saved! ✓";
-            setTimeout(() => { textLabel.textContent = "Share QR"; }, 2500);
-          }
-        };
-
-        if (canvas) {
-          if (canvas.toBlob && navigator.share && navigator.canShare) {
-            canvas.toBlob(async (blob) => {
-              if (!blob) { triggerDownload(canvas.toDataURL("image/png")); return; }
-              const file = new File([blob], `ecard-qr-${resultId.slice(0,6)}.png`, { type: "image/png" });
-              if (navigator.canShare({ files: [file] })) {
-                try {
+        // Secure Context with file sharing support (e.g. mobile Chrome / Safari on HTTPS)
+        if (canvas && canvas.toBlob && navigator.share && navigator.canShare) {
+          canvas.toBlob(async (blob) => {
+            if (blob) {
+              try {
+                const file = new File([blob], `ecard-qr-${resultId.slice(0,6)}.png`, { type: "image/png" });
+                if (navigator.canShare({ files: [file] })) {
                   await navigator.share({
-                    title: 'Special E-Card QR Code',
-                    text: 'Scan this QR code to open your surprise e-card!',
+                    title: 'Special Surprise E-Card QR Code',
+                    text: `Scan or open this surprise e-card from ${sender || 'Someone Special'}! 💌`,
+                    url: fullLink,
                     files: [file]
                   });
                   if (textLabel) {
@@ -3934,19 +3940,91 @@ async function finalizeUpload(){
                     setTimeout(() => { textLabel.textContent = "Share QR"; }, 2500);
                   }
                   return;
-                } catch(err) {
-                  if (err.name === 'AbortError') return;
                 }
+              } catch(err) {
+                if (err.name === 'AbortError') return; // User closed sheet
               }
-              triggerDownload(canvas.toDataURL("image/png"));
-            }, "image/png");
-            return;
-          }
-          triggerDownload(canvas.toDataURL("image/png"));
+            }
+
+            // Fallback to sharing URL + text via native share
+            try {
+              await navigator.share({
+                title: 'Special Surprise E-Card QR Code',
+                text: `Scan or open this surprise e-card from ${sender || 'Someone Special'}! 💌`,
+                url: fullLink
+              });
+              if (textLabel) {
+                textLabel.textContent = "Shared! ✓";
+                setTimeout(() => { textLabel.textContent = "Share QR"; }, 2500);
+              }
+              return;
+            } catch(err) {
+              if (err.name === 'AbortError') return;
+            }
+
+            handleFallbackShare();
+          }, "image/png");
           return;
         }
 
-        if (img && img.src) {
+        if (navigator.share) {
+          try {
+            await navigator.share({
+              title: 'Special Surprise E-Card QR Code',
+              text: `Scan or open this surprise e-card from ${sender || 'Someone Special'}! 💌`,
+              url: fullLink
+            });
+            if (textLabel) {
+              textLabel.textContent = "Shared! ✓";
+              setTimeout(() => { textLabel.textContent = "Share QR"; }, 2500);
+            }
+            return;
+          } catch(err) {
+            if (err.name === 'AbortError') return;
+          }
+        }
+
+        // On mobile over HTTP: NEVER auto-download! Open WhatsApp or highlight shareable apps!
+        handleFallbackShare();
+
+        function handleFallbackShare() {
+          try {
+            navigator.clipboard.writeText(fullLink);
+          } catch(e) {}
+          if (textLabel) {
+            textLabel.textContent = "Ready! ✓";
+            setTimeout(() => { textLabel.textContent = "Share QR"; }, 2500);
+          }
+          if (isMobile) {
+            showShareToast("Opening WhatsApp... or choose an app below! 💌");
+            openWhatsAppDirect();
+          } else {
+            showShareToast("Link copied! Choose an app below to share 💌");
+          }
+          highlightAppsSection();
+        }
+      };
+    }
+
+    // Direct Sharable App button clicks
+    const waChip = $("appShareWhatsApp");
+    if (waChip) waChip.onclick = () => openWhatsAppDirect();
+
+    const smsChip = $("appShareSms");
+    if (smsChip) smsChip.onclick = () => openSmsDirect();
+
+    const tgChip = $("appShareTelegram");
+    if (tgChip) tgChip.onclick = () => openTelegramDirect();
+
+    // Explicit Save QR button (the ONLY button that downloads image, when user explicitly requests it)
+    const explicitSaveBtn = $("explicitSaveQrBtn");
+    if (explicitSaveBtn) {
+      explicitSaveBtn.onclick = () => {
+        const canvas = $("qr").querySelector("canvas");
+        const img = $("qr").querySelector("img");
+        if (canvas) {
+          triggerDownload(canvas.toDataURL("image/png"));
+        } else if (img && img.src) {
           triggerDownload(img.src);
         }
       };

@@ -8,32 +8,54 @@ const crypto = require('crypto');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Directories
-const UPLOADS_DIR = path.join(__dirname, 'uploads');
-const DATA_DIR = path.join(__dirname, 'data');
+const os = require('os');
+
+// Storage Directories: Support Vercel / Serverless read-only environments
+const isServerless = !!(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NETLIFY);
+const BASE_STORAGE_DIR = isServerless ? os.tmpdir() : __dirname;
+
+const UPLOADS_DIR = path.join(BASE_STORAGE_DIR, 'uploads');
+const DATA_DIR = path.join(BASE_STORAGE_DIR, 'data');
 const DATA_FILE = path.join(DATA_DIR, 'surprises.json');
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
-if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-if (!fs.existsSync(DATA_FILE)) fs.writeFileSync(DATA_FILE, JSON.stringify({}, null, 2), 'utf8');
+// In-memory surprises cache
+let inMemorySurprises = {};
+
+try {
+  if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+  if (!fs.existsSync(DATA_FILE)) {
+    fs.writeFileSync(DATA_FILE, JSON.stringify({}, null, 2), 'utf8');
+  } else {
+    const raw = fs.readFileSync(DATA_FILE, 'utf8');
+    inMemorySurprises = JSON.parse(raw);
+  }
+} catch (e) {
+  console.warn('Note: Running with in-memory storage fallback:', e.message);
+}
 
 // Helper to read & write surprises
 function getSurprises() {
   try {
-    const raw = fs.readFileSync(DATA_FILE, 'utf8');
-    return JSON.parse(raw);
+    if (fs.existsSync(DATA_FILE)) {
+      const raw = fs.readFileSync(DATA_FILE, 'utf8');
+      const parsed = JSON.parse(raw);
+      inMemorySurprises = Object.assign({}, inMemorySurprises, parsed);
+    }
   } catch (err) {
-    console.error('Error reading surprises.json:', err);
-    return {};
+    console.warn('Could not read from DATA_FILE, using memory store:', err.message);
   }
+  return inMemorySurprises;
 }
 
 function saveSurprises(data) {
+  inMemorySurprises = Object.assign({}, inMemorySurprises, data);
   try {
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
     fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), 'utf8');
   } catch (err) {
-    console.error('Error saving surprises.json:', err);
+    console.warn('Could not persist surprises to disk, kept safely in memory:', err.message);
   }
 }
 
@@ -139,7 +161,7 @@ app.post('/api/create', upload.fields([
     // Process uploaded photos
     const photoFiles = req.files && req.files['photos'] ? req.files['photos'] : [];
     const photoUrls = photoFiles.map(file => {
-      return `/uploads/${sid}/${file.filename}`;
+      return `uploads/${sid}/${file.filename}`;
     });
 
     // Process custom wall photos (viral library memes or personal uploads)
@@ -161,19 +183,20 @@ app.post('/api/create', upload.fields([
         if (typeof item === 'string' && item.startsWith('upload:')) {
           if (wallPhotoFiles[wallUploadIdx]) {
             const f = wallPhotoFiles[wallUploadIdx++];
-            return `/uploads/${sid}/${f.filename}`;
+            return `uploads/${sid}/${f.filename}`;
           }
-          return `/library/viral_${idx + 1}.jpg`;
+          return `library/viral_${idx + 1}.jpg`;
         }
         if (typeof item === 'string' && item.trim()) {
           const trimmed = item.trim();
-          return trimmed.startsWith('/') || trimmed.startsWith('http') ? trimmed : `/${trimmed}`;
+          // Remove leading slash for safe relative paths across subpaths
+          return trimmed.replace(/^\//, '');
         }
-        return `/library/viral_${idx + 1}.jpg`;
+        return `library/viral_${idx + 1}.jpg`;
       });
     } else {
       // Default to first 6 viral library memes
-      finalWallPhotos = [1, 2, 3, 4, 5, 6].map(i => `/library/viral_${i}.jpg`);
+      finalWallPhotos = [1, 2, 3, 4, 5, 6].map(i => `library/viral_${i}.jpg`);
     }
 
     // Process custom uploaded song
@@ -181,7 +204,7 @@ app.post('/api/create', upload.fields([
     let customSongTitle = songTitle || '';
     if (req.files && req.files['song'] && req.files['song'][0]) {
       const songFile = req.files['song'][0];
-      customSongUrl = `/uploads/${sid}/${songFile.filename}`;
+      customSongUrl = `uploads/${sid}/${songFile.filename}`;
       if (!customSongTitle) {
         customSongTitle = songFile.originalname.replace(/\.[^/.]+$/, "");
       }
@@ -191,14 +214,14 @@ app.post('/api/create', upload.fields([
     let voiceNoteUrl = null;
     if (req.files && req.files['voiceNote'] && req.files['voiceNote'][0]) {
       const vFile = req.files['voiceNote'][0];
-      voiceNoteUrl = `/uploads/${sid}/${vFile.filename}`;
+      voiceNoteUrl = `uploads/${sid}/${vFile.filename}`;
     }
 
     // Process optional witness photo
     let witnessPhotoUrl = null;
     if (req.files && req.files['witnessPhoto'] && req.files['witnessPhoto'][0]) {
       const wFile = req.files['witnessPhoto'][0];
-      witnessPhotoUrl = `/uploads/${sid}/${wFile.filename}`;
+      witnessPhotoUrl = `uploads/${sid}/${wFile.filename}`;
     }
 
     let parsedTerms = null;
@@ -320,7 +343,11 @@ app.get('/api/surprises', (req, res) => {
   res.json(list);
 });
 
-// Start Server
-app.listen(PORT, () => {
-  console.log(`Boyfriend's Day server running at http://localhost:${PORT}`);
-});
+// Start Server if directly run
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Boyfriend's Day server running at http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;

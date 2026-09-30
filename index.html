@@ -1609,7 +1609,6 @@ a.btn { display: inline-block; text-decoration: none; }
     <img class="cat2" id="catImg2" src="assets/cat.gif" alt="Cat sticker" onerror="this.src='https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3ejQ5bmwwb3ZuamNpZXF1NDV6b3YzbHk2YmF3YWh0OG8wcDc4MzlyNCZlcD12MV9zdGlja2Vyc19yZWxhdGVkJmN0PXM/eAot8Ldr85y3peseC3/giphy.gif'">
   </div>
 
-  <a class="btn hidden" id="returnBtn" href="/" style="margin-top:36px">Create Your Own E-Card ✿</a>
   <div class="genbox hidden" id="genbox">
     <button class="btn" id="genBtn">Generate QR &amp; Link</button>
     <p>Happy with it? This uploads everything to your backend and creates the shareable link.</p>
@@ -3257,9 +3256,6 @@ function render(d){
   }
 }
 
-if(mode==="view") {
-  $("returnBtn").classList.remove("hidden");
-}
 
 /* ==========================================================
    VOICE NOTE CASSETTE CONTROLS (Point 1)

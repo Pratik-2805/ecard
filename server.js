@@ -207,24 +207,25 @@ app.post('/api/create', upload.fields([
     let wallUploadIdx = 0;
 
     if (Array.isArray(parsedWallConfig) && parsedWallConfig.length === 6) {
+      const defaultWallGifs = ['assets/mini1.gif', 'assets/mini2.gif', 'assets/mini3.gif', 'assets/mini5.gif', 'assets/mini7.gif', 'assets/mini8.gif'];
       finalWallPhotos = parsedWallConfig.map((item, idx) => {
         if (typeof item === 'string' && item.startsWith('upload:')) {
           if (wallPhotoFiles[wallUploadIdx]) {
             const f = wallPhotoFiles[wallUploadIdx++];
             return `uploads/${sid}/${f.filename}`;
           }
-          return `library/viral_${idx + 1}.jpg`;
+          return defaultWallGifs[idx] || 'assets/mini1.gif';
         }
         if (typeof item === 'string' && item.trim()) {
           const trimmed = item.trim();
           // Remove leading slash for safe relative paths across subpaths
           return trimmed.replace(/^\//, '');
         }
-        return `library/viral_${idx + 1}.jpg`;
+        return defaultWallGifs[idx] || 'assets/mini1.gif';
       });
     } else {
-      // Default to first 6 viral library memes
-      finalWallPhotos = [1, 2, 3, 4, 5, 6].map(i => `library/viral_${i}.jpg`);
+      // Default to first 6 assets mini gifs
+      finalWallPhotos = ['assets/mini1.gif', 'assets/mini2.gif', 'assets/mini3.gif', 'assets/mini5.gif', 'assets/mini7.gif', 'assets/mini8.gif'];
     }
 
     // Process custom uploaded song

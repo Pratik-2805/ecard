@@ -1503,7 +1503,7 @@ a.btn { display: inline-block; text-decoration: none; }
       <div class="front"></div>
       <div class="stamp" id="envStamp">HAPPY BOYFRIEND'S DAY</div>
       <div class="heart" id="envHeart">♥</div>
-      <img class="cat" id="catImg" src="assets/cat.gif" alt="Cute Cat" onerror="this.src='https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3ejQ5bmwwb3ZuamNpZXF1NDV6b3YzbHk2YmF3YWh0OG8wcDc4MzlyNCZlcD12MV9zdGlja2Vyc19yZWxhdGVkJmN0PXM/eAot8Ldr85y3peseC3/giphy.gif'">
+      <img class="cat" id="catImg" src="assets/cat.gif" alt="Cute Cat" onerror="this.src='assets/cat.gif'">
     </div>
     <p class="tap" id="tapPrompt">TAP ANYWHERE TO BEGIN</p>
   </div>
@@ -1529,7 +1529,7 @@ a.btn { display: inline-block; text-decoration: none; }
   <h1 class="title" id="vTitle"></h1>
   <span class="ribbon" id="vRibbon"></span>
   <div class="hero">
-    <div class="polaroid"><img id="heroImg" src="p2.jpeg" alt="Memory" onerror="this.src='assets/mini1.gif'"></div>
+    <div class="polaroid"><img id="heroImg" src="assets/mini2.gif" alt="Memory" onerror="this.src='assets/mini1.gif'"></div>
     <div class="msg" id="vMsg"></div>
   </div>
   <div class="minis" id="minis"></div>
@@ -1606,7 +1606,7 @@ a.btn { display: inline-block; text-decoration: none; }
   <div class="letter2">
     <div class="pp pa"><img id="lp0" alt="Memory 1" onerror="this.src='assets/mini1.gif'"></div><div class="pp pb"><img id="lp1" alt="Memory 2" onerror="this.src='assets/mini2.gif'"></div><div class="pp pc"><img id="lp2" alt="Memory 3" onerror="this.src='assets/mini3.gif'"></div>
     <div class="note" id="note"></div>
-    <img class="cat2" id="catImg2" src="assets/cat.gif" alt="Cat sticker" onerror="this.src='https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3ejQ5bmwwb3ZuamNpZXF1NDV6b3YzbHk2YmF3YWh0OG8wcDc4MzlyNCZlcD12MV9zdGlja2Vyc19yZWxhdGVkJmN0PXM/eAot8Ldr85y3peseC3/giphy.gif'">
+    <img class="cat2" id="catImg2" src="assets/cat.gif" alt="Cat sticker" onerror="this.src='assets/cat.gif'">
   </div>
 
   <div class="genbox hidden" id="genbox">
@@ -2382,7 +2382,7 @@ function decodeCardData(encoded) {
       certificateSigner: c.cs || preset.certificate.signer,
       witnessName: c.w || preset.certificate.witness,
       witnessPhotoUrl: '',
-      wallPhotos: (Array.isArray(c.wp) && c.wp.length) ? c.wp : preset.memories.map((_, i) => `library/viral_${(i%6)+1}.jpg`),
+      wallPhotos: (Array.isArray(c.wp) && c.wp.length) ? c.wp : ['assets/mini1.gif', 'assets/mini2.gif', 'assets/mini3.gif', 'assets/mini5.gif', 'assets/mini7.gif', 'assets/mini8.gif'],
       memoryNotes: (Array.isArray(c.mn) && c.mn.length) ? c.mn : preset.memories,
       secretQuestion: c.sq || '',
       secretAnswer: c.sa || '',
@@ -2430,7 +2430,6 @@ function renderQrCode(container, text) {
   }
 }
 
-const G = "https://media.giphy.com/media/v1.";
 const EVENT_MASCOTS = {
   boyfriend: "assets/cat.gif",
   girlfriend: "assets/boka.gif",
@@ -2446,69 +2445,79 @@ function getEventMascot(evKey) {
   return EVENT_MASCOTS[evKey] || "assets/cat.gif";
 }
 const CAT = "assets/cat.gif";
-const COUPLE_GIF_ASSETS = [
-  ...Array.from({ length: 20 }, (_, i) => `assets/mini${i + 1}.gif`),
+const ALL_ASSET_GIFS = [
   "assets/cat.gif",
   "assets/boka.gif",
   "assets/friend.gif",
   "assets/love.gif",
-  "assets/missyou.gif",
+  "assets/anniversary.gif",
   "assets/birthday.gif",
-  "assets/anniversary.gif"
+  "assets/missyou.gif",
+  "assets/mini1.gif",
+  "assets/mini2.gif",
+  "assets/mini3.gif",
+  "assets/mini5.gif",
+  "assets/mini7.gif",
+  "assets/mini8.gif",
+  "assets/mini9.gif",
+  "assets/mini11.gif",
+  "assets/mini12.gif",
+  "assets/mini13.gif",
+  "assets/mini14.gif",
+  "assets/mini15.gif",
+  "assets/mini16.gif",
+  "assets/mini17.gif",
+  "assets/mini18.gif",
+  "assets/mini19.gif",
+  "assets/mini20.gif"
 ];
+const COUPLE_GIF_ASSETS = ALL_ASSET_GIFS;
 const DEF = [
   "assets/mini1.gif",
   "assets/mini2.gif",
   "assets/mini3.gif"
 ];
-const MINI_GIFS = COUPLE_GIF_ASSETS.slice(0, 3);
-const P = [1,2,3,4,5,6].map(i=>`p${i}.jpeg`);
+const MINI_GIFS = [
+  "assets/mini1.gif",
+  "assets/mini2.gif",
+  "assets/mini3.gif"
+];
 
 /* ==========================================================
-   VIRAL MEME & ANIMATED GIF LIBRARY (Curated Wholesome Collection)
+   ANIMATED GIF LIBRARY (All Unique GIFs from public/assets)
 ========================================================== */
 const VIRAL_MEME_LIBRARY = [
-  { id: 1, title: "I'm so Youholic", category: "funny", src: "library/viral_1.jpg", caption: "Cute tongue blep" },
-  { id: 2, title: "i lve u babyyy muwaah", category: "romantic", src: "library/viral_2.jpg", caption: "Sweet baby kissies" },
-  { id: 3, title: "Arrested in your love", category: "funny", src: "library/viral_3.jpg", caption: "Kitty in tiny handcuffs" },
-  { id: 4, title: "Floating Hearts Shiba", category: "romantic", src: "library/viral_4.jpg", caption: "Blissful Shiba surrounded by hearts" },
-  { id: 5, title: "Cheese Smile Dog + Flower", category: "cute", src: "library/viral_5.jpg", caption: "Big cheeky grin holding yellow flower" },
-  { id: 6, title: "my pretty boyy / girl", category: "romantic", src: "library/viral_6.jpg", caption: "Fluffy kitten staring up lovingly" },
-  { id: 7, title: "You Are My Whole World", category: "romantic", src: "library/viral_7.jpg", caption: "Kitten with bright heart halo" },
-  { id: 8, title: "I Am Baby, Give Me Love", category: "cute", src: "library/viral_8.jpg", caption: "Warm kitten burrito in soft blanket" },
-  { id: 9, title: "Flower For My Favorite Person", category: "romantic", src: "library/viral_9.jpg", caption: "Golden puppy with fresh flower" },
-  { id: 10, title: "Sweetest Strawberry Treat", category: "cute", src: "library/viral_10.jpg", caption: "Cute tiny hamster nibbling strawberry" },
-  { id: 11, title: "Warm Bunny Snuggles", category: "cute", src: "library/viral_11.jpg", caption: "Fluffy rabbit resting in flowers" },
-  { id: 12, title: "Paws Around My Heart", category: "cute", src: "library/viral_12.jpg", caption: "Tiny kitten clutching its little paws" },
-  { id: 13, title: "Caught Winking at You", category: "funny", src: "library/viral_13.jpg", caption: "Cheeky Corgi dog winking playfully" },
-  { id: 14, title: "Dreaming Only of You", category: "romantic", src: "library/viral_14.jpg", caption: "Sleepy peaceful baby kitten" },
-  { id: 15, title: "Head Tilted For You", category: "cute", src: "library/viral_15.jpg", caption: "Golden retriever pup head tilt" },
-  { id: 16, title: "Holding Hands Forever", category: "romantic", src: "library/viral_16.jpg", caption: "Two sea otters holding paws together" },
-  { id: 17, title: "The Brightest Smile", category: "cute", src: "library/viral_17.jpg", caption: "Fluffy white smiling Samoyed dog" },
-  { id: 18, title: "Hypnotized By You", category: "funny", src: "library/viral_18.jpg", caption: "Saucer eyes kitten looking up" },
-  { id: 19, title: "Silly Blep Just For You", category: "funny", src: "library/viral_19.jpg", caption: "Goofy puppy sticking tongue out" },
-  { id: 20, title: "Curious Red Panda Paws", category: "cute", src: "library/viral_20.jpg", caption: "Fluffy red panda reaching up curiously" },
-  { id: 21, title: "Heart-Shaped Boop", category: "romantic", src: "library/viral_21.jpg", caption: "Cat with cute heart-shaped nose" },
-  { id: 22, title: "Cozy In Your Warmth", category: "cute", src: "library/viral_22.jpg", caption: "Cute puppy tucked in knit beanie" },
-  { id: 23, title: "Sunny Grass Zoomies", category: "cute", src: "library/viral_23.jpg", caption: "Golden puppy tumbling in the lawn" },
-  { id: 24, title: "Looking Up At My World", category: "romantic", src: "library/viral_24.jpg", caption: "Frenchie puppy gazing with affection" },
-  { id: 25, title: "Angel Cloud of Love", category: "romantic", src: "library/viral_25.jpg", caption: "Pure white kitten with bright blue eyes" },
-  { id: 26, title: "I Miss You Warm Hug (GIF)", category: "romantic", src: "assets/missyou.gif", caption: "Sweet missing you animation" },
-  { id: 27, title: "Missing You Across Miles (GIF)", category: "romantic", src: "assets/missyou.gif", caption: "Long distance love animation" },
-  { id: 28, title: "True Love Hug (GIF)", category: "romantic", src: "assets/love.gif", caption: "Heartwarming romantic hug" },
-  { id: 29, title: "Boka Hugs (GIF)", category: "cute", src: "assets/boka.gif", caption: "Cute animated boka bear" },
-  { id: 30, title: "Besties Forever (GIF)", category: "funny", src: "assets/friend.gif", caption: "High five best friends" },
-  { id: 31, title: "Happy Cat Play (GIF)", category: "cute", src: "assets/cat.gif", caption: "Adorable animated kitty" },
-  { id: 32, title: "Birthday Confetti Dance (GIF)", category: "funny", src: "assets/birthday.gif", caption: "Birthday celebration dance" },
-  { id: 33, title: "Happy Birthday Party (GIF)", category: "funny", src: "assets/birthday.gif", caption: "Birthday party celebration" },
-  { id: 34, title: "Happy Anniversary Love (GIF)", category: "romantic", src: "assets/anniversary.gif", caption: "Forever together animation" }
+  { id: 1, title: "Happy Cat Play", category: "cute", src: "assets/cat.gif", caption: "Playful kitty full of joy" },
+  { id: 2, title: "Boka Bear & Panda Hug", category: "romantic", src: "assets/boka.gif", caption: "Sweetest cuddles & hugs" },
+  { id: 3, title: "Besties Forever", category: "funny", src: "assets/friend.gif", caption: "High five partner in crime" },
+  { id: 4, title: "True Love Warm Hug", category: "romantic", src: "assets/love.gif", caption: "Heartwarming cozy embrace" },
+  { id: 5, title: "Happy Anniversary Love", category: "romantic", src: "assets/anniversary.gif", caption: "Forever together celebration" },
+  { id: 6, title: "Birthday Party Dance", category: "funny", src: "assets/birthday.gif", caption: "Dancing with joy and confetti" },
+  { id: 7, title: "Missing You Across Miles", category: "romantic", src: "assets/missyou.gif", caption: "Long distance love & kisses" },
+  { id: 8, title: "Peach & Goma Hug", category: "romantic", src: "assets/mini1.gif", caption: "Can't let go of you" },
+  { id: 9, title: "Sweet Baby Cuddles", category: "cute", src: "assets/mini2.gif", caption: "Gentle head pats & love" },
+  { id: 10, title: "Loving Gentle Touch", category: "romantic", src: "assets/mini3.gif", caption: "Soft affection just for you" },
+  { id: 11, title: "Playful Bouncing Joy", category: "funny", src: "assets/mini5.gif", caption: "Excited bunny hops" },
+  { id: 12, title: "Adorable Head Nuzzle", category: "cute", src: "assets/mini7.gif", caption: "Snuggling into your cheek" },
+  { id: 13, title: "Heart Flutter Hug", category: "romantic", src: "assets/mini8.gif", caption: "Butterflies in my heart" },
+  { id: 14, title: "Snuggly Blanket Kisses", category: "cute", src: "assets/mini9.gif", caption: "Cozy afternoon kisses" },
+  { id: 15, title: "Cute Little Dance", category: "funny", src: "assets/mini11.gif", caption: "Silly happy dance moves" },
+  { id: 16, title: "Sweet Star Sparkle", category: "cute", src: "assets/mini12.gif", caption: "Shining bright for you" },
+  { id: 17, title: "Heart Balloon Float", category: "romantic", src: "assets/mini13.gif", caption: "Carried away by your love" },
+  { id: 18, title: "Warm Cozy Blanket", category: "cute", src: "assets/mini14.gif", caption: "Tucked in warm and safe" },
+  { id: 19, title: "Happy Cheerful Bounce", category: "funny", src: "assets/mini15.gif", caption: "Pure unfiltered happiness" },
+  { id: 20, title: "Tender Cheek Kisses", category: "romantic", src: "assets/mini16.gif", caption: "Endless sweet kisses" },
+  { id: 21, title: "Endless Love Hearts", category: "romantic", src: "assets/mini17.gif", caption: "Shower of floating hearts" },
+  { id: 22, title: "Paws of Affection", category: "cute", src: "assets/mini18.gif", caption: "Holding hands forever" },
+  { id: 23, title: "Sweet Little Peek", category: "funny", src: "assets/mini19.gif", caption: "Peeking over just to see you" },
+  { id: 24, title: "Together Forever Hug", category: "romantic", src: "assets/mini20.gif", caption: "Never letting you go" }
 ];
 
 let activeSlotForModal = 0;
 let currentMemeFilter = "all";
 let wallSlots = [0, 1, 2, 3, 4, 5].map(i => ({
   type: "library",
-  url: `library/viral_${i+1}.jpg`,
+  url: VIRAL_MEME_LIBRARY[i].src,
   title: VIRAL_MEME_LIBRARY[i].title,
   memeId: i + 1,
   file: null,
@@ -2524,13 +2533,13 @@ function renderWallSlots() {
     const card = document.createElement("div");
     card.className = "wall-slot-card";
     const isCustom = slot.type === "upload";
-    const badgeLabel = isCustom ? "📷 Custom Photo" : `Meme #${slot.memeId || (i+1)}`;
+    const badgeLabel = isCustom ? "📷 Custom Photo" : `GIF #${slot.memeId || (i+1)}`;
 
     card.innerHTML = `
       <div class="slot-preview-wrap">
         <div class="slot-pin"></div>
-        <div class="slot-preview-polaroid" title="Click to swap meme" data-slot="${i}">
-          <img class="slot-preview-img" src="${esc(resolveAssetUrl(slot.url))}" alt="Card ${i+1}" onerror="this.src='library/viral_${i+1}.jpg'">
+        <div class="slot-preview-polaroid" title="Click to swap animation" data-slot="${i}">
+          <img class="slot-preview-img" src="${esc(resolveAssetUrl(slot.url))}" alt="Card ${i+1}" onerror="this.src='assets/mini1.gif'">
         </div>
         <span class="slot-badge-type" title="${esc(slot.title)}">${esc(slot.title)}</span>
       </div>
@@ -2637,7 +2646,7 @@ function renderMemeGrid(category = "all") {
     const isSelected = activeSlot && activeSlot.url === meme.src;
     item.className = "meme-item" + (isSelected ? " selected" : "");
     item.innerHTML = `
-      <img class="meme-item-img" src="${esc(resolveAssetUrl(meme.src))}" alt="${esc(meme.title)}" loading="lazy" onerror="this.src='library/viral_1.jpg'">
+      <img class="meme-item-img" src="${esc(resolveAssetUrl(meme.src))}" alt="${esc(meme.title)}" loading="lazy" onerror="this.src='assets/mini1.gif'">
       <div class="meme-item-meta">
         <span class="meme-item-title">${esc(meme.title)}</span>
         <span class="meme-item-cat">${esc(meme.category)} • ${esc(meme.caption)}</span>
@@ -2849,9 +2858,9 @@ function selectEvent(evKey) {
     if (wallSlots[0] && (!wallSlots[0].file)) {
       wallSlots[0] = {
         type: "library",
-        url: "assets/miss.gif",
-        title: "I Miss You Warm Hug (GIF)",
-        memeId: 26,
+        url: "assets/missyou.gif",
+        title: "Missing You Across Miles",
+        memeId: 7,
         file: null,
         note: wallSlots[0].note || preset.memories[0]
       };
@@ -3196,12 +3205,12 @@ function render(d){
   const memoriesList = (d.memoryNotes && d.memoryNotes.length === 6) ? d.memoryNotes : preset.memories;
   const wallPhotosList = (d.wallPhotos && d.wallPhotos.length === 6)
     ? d.wallPhotos
-    : [1, 2, 3, 4, 5, 6].map(i => `library/viral_${i}.jpg`);
+    : ['assets/mini1.gif', 'assets/mini2.gif', 'assets/mini3.gif', 'assets/mini5.gif', 'assets/mini7.gif', 'assets/mini8.gif'];
   $("wall").innerHTML = wallPhotosList.map((u,i)=>`
     <button class="flip" aria-label="Flip photo ${i+1}">
       <span class="pin"></span>
       <div>
-        <figure><img src="${esc(resolveAssetUrl(u))}" alt="Memory ${i+1}" onerror="this.src='library/viral_${i+1}.jpg'"></figure>
+        <figure><img src="${esc(resolveAssetUrl(u))}" alt="Memory ${i+1}" onerror="this.src='assets/mini1.gif'"></figure>
         <div class="back">${esc(memoriesList[i] || '')}</div>
       </div>
     </button>`).join("");

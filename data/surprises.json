@@ -443,5 +443,75 @@
     ],
     "payment_id": "FREE-LOCAL",
     "createdAt": "2026-09-30T10:17:09.298Z"
+  },
+  "c1568dc9-01de-4338-98f3-7dd6a6f50d13": {
+    "id": "c1568dc9-01de-4338-98f3-7dd6a6f50d13",
+    "eventType": "boyfriend",
+    "eventTitle": "Boyfriend's Day",
+    "envelopeStamp": "HAPPY BOYFRIEND'S DAY",
+    "envelopeLetterTitle": "Hey You!",
+    "envelopeLetterSub": "I made a little something<br>just for you...",
+    "certificateBadge": "CERTIFICATE OF BOYFRIENDSHIP",
+    "certificateTitle": "Certified Boyfriend",
+    "certificateTerms": [
+      "Chief Banter Officer. Fully responsible for my fun banter. Always. No off days, no 'I'm tired'.",
+      "Always there for me. Replies, rants, random 2am thoughts. All covered.",
+      "Laughs at my jokes. Even the bad ones. Especially the bad ones.",
+      "Snack policy. Shares the good fries. No exceptions.",
+      "Terms: valid forever, non-refundable, non-transferable."
+    ],
+    "certificateSigner": "",
+    "memoryNotes": [
+      "the day you became my favourite notification.",
+      "this smile is still my weakness.",
+      "we were being idiots and it was perfect.",
+      "you make boring days feel like weekends.",
+      "i'd pick you again. every single time.",
+      "to be continued... forever ✿"
+    ],
+    "themeColors": {
+      "--bg": "#eaf4f0",
+      "--ink": "#1f3a44",
+      "--teal": "#3f9482",
+      "--teal-d": "#2b6f60",
+      "--mint": "#cfe6df",
+      "--peach": "#e07a5f",
+      "--gold": "#e8a44e",
+      "--line": "#cfe3dc"
+    },
+    "musicUrl": "",
+    "songTitle": "Our Song",
+    "secretQuestion": "",
+    "secretAnswer": "",
+    "secretHint": "",
+    "vibe": "romantic",
+    "scratchCoupons": [
+      "🎟️ 1x Head Massage & Unlimited Cuddles",
+      "🎟️ 1x You Pick the Movie (No Complaints!)",
+      "🎟️ 1x Get Out of 1 Silly Argument Free Pass"
+    ],
+    "witnessType": "cat",
+    "witnessName": "the cat (official witness)",
+    "witnessPhotoUrl": null,
+    "voiceNoteUrl": null,
+    "voiceNoteTitle": "A special voice note for you",
+    "sender": "Rai",
+    "receiver": "Sawalakhe",
+    "message": "Every year this day comes around and I think the same thing: I got so lucky with you. So instead of a simple text, I built you a tiny corner of the internet. Stay a while, there's a bit to see.",
+    "photos": [
+      "uploads/c1568dc9-01de-4338-98f3-7dd6a6f50d13/photos-1790764320778-662978668.jpg",
+      "uploads/c1568dc9-01de-4338-98f3-7dd6a6f50d13/photos-1790764320784-680737615.jpg",
+      "uploads/c1568dc9-01de-4338-98f3-7dd6a6f50d13/photos-1790764320800-113289846.jpg"
+    ],
+    "wallPhotos": [
+      "library/viral_1.jpg",
+      "library/viral_2.jpg",
+      "library/viral_3.jpg",
+      "library/viral_4.jpg",
+      "library/viral_5.jpg",
+      "library/viral_6.jpg"
+    ],
+    "payment_id": "FREE-LOCAL",
+    "createdAt": "2026-09-30T10:32:00.807Z"
   }
 }

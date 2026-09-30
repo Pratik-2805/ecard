@@ -781,15 +781,94 @@ a.btn { display: inline-block; text-decoration: none; }
 
 /* Modal */
 #modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: grid; place-items: center; z-index: 40; padding: 20px; }
-.mbox { background: #fff; border-radius: 24px; padding: 30px; width: min(94vw, 440px); text-align: center; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
-.mbox h2 { font-size: 28px; margin-bottom: 8px; }
+.mbox { background: #fff; border-radius: 24px; padding: 28px 22px; width: min(94vw, 420px); text-align: center; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.25); max-height: 92vh; overflow-y: auto; }
+.mbox h2 { font-size: 26px; margin-bottom: 6px; }
 .mbox p { color: var(--mut); font-size: 14px; }
-.x { position: absolute; top: 12px; right: 16px; background: none; font-size: 26px; color: var(--mut); cursor: pointer; line-height: 1; }
+.x { position: absolute; top: 12px; right: 16px; background: none; font-size: 26px; color: var(--mut); cursor: pointer; line-height: 1; border: none; }
 .big { font-family: Fraunces, serif; font-size: 34px; margin: 14px 0; color: var(--teal-d); }
-#qr { display: flex; justify-content: center; margin: 16px 0; }
-#qr canvas, #qr img { border: 4px solid #fff; border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,0.1); }
-.link { margin: 10px 0 16px; padding: 10px; background: var(--bg); border-radius: 12px; word-break: break-all; font-size: 13px; border: 1px solid var(--mint); }
-.btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+#qr { display: flex; justify-content: center; align-items: center; margin: 14px auto; padding: 12px; background: #fafbfc; border-radius: 16px; width: fit-content; border: 1px solid #edf2f7; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }
+#qr canvas, #qr img { display: block; border-radius: 8px; border: 3px solid #ffffff; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+
+.share-actions-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0 12px; }
+.btn-share-link {
+  background: var(--teal-d);
+  color: #fff;
+  border: none;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 12px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(31,58,68,0.2);
+  transition: all 0.18s ease;
+  font-size: 14px;
+}
+.btn-share-link:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(31,58,68,0.28); }
+.btn-share-qr {
+  background: #ffffff;
+  color: var(--teal-d);
+  border: 2px solid var(--teal-d);
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  font-size: 14px;
+}
+.btn-share-qr:hover { background: rgba(31,58,68,0.06); transform: translateY(-1px); }
+
+.link-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0 2px;
+  background: var(--bg);
+  border: 1px solid var(--mint);
+  border-radius: 12px;
+  padding: 4px 6px 4px 10px;
+}
+.link-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 11.5px;
+  color: var(--mut);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: inherit;
+  cursor: text;
+  min-width: 0;
+}
+.copy-icon-btn, .open-icon-btn {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  color: var(--text);
+  border-radius: 8px;
+  padding: 5px 9px;
+  font-size: 11.5px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  line-height: 1;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.copy-icon-btn:hover, .open-icon-btn:hover {
+  background: var(--mint-l);
+  color: var(--teal-d);
+}
 
 @media (max-width: 700px) {
   .hero { grid-template-columns: 1fr; }
@@ -1502,16 +1581,43 @@ a.btn { display: inline-block; text-decoration: none; }
       <button class="btn" id="retryBtn">Retry upload</button>
     </div>
     <div id="sDone" class="hidden">
-      <h2>It's ready! 🎉</h2>
+      <div style="font-size:36px;line-height:1;margin-bottom:4px;">🎉</div>
+      <h2 style="margin-bottom:4px;">It's ready!</h2>
+      <p style="color:var(--mut);font-size:13.5px;margin-bottom:12px;">Share your personalized e-card surprise</p>
+
       <div id="qr"></div>
-      <p id="localShareNotice" class="hidden" style="font-size:12px;color:var(--mut);margin:8px 0;line-height:1.4;">
+
+      <p id="localShareNotice" class="hidden" style="font-size:12px;color:var(--mut);margin:6px 0 10px;line-height:1.4;">
         📱 <b>Wi-Fi Scannable:</b> Formatted for phones on this Wi-Fi (<span id="lanNoticeIp" style="font-weight:600;color:var(--text);"></span>)
       </p>
-      <div class="link" id="shareLink"></div>
-      <div class="btns">
-        <button class="btn" id="copyBtn">Copy link</button>
-        <button class="btn ghost" id="dlBtn">Save QR</button>
-        <a class="btn ghost" id="openLinkBtn" target="_blank" style="text-decoration:none">Open link ↗</a>
+
+      <!-- The 2 Primary Action Buttons -->
+      <div class="share-actions-row">
+        <button type="button" class="btn-share-link" id="shareLinkBtn">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+            <polyline points="16 6 12 2 8 6"></polyline>
+            <line x1="12" y1="2" x2="12" y2="15"></line>
+          </svg>
+          <span id="shareLinkBtnText">Share Link</span>
+        </button>
+
+        <button type="button" class="btn-share-qr" id="shareQrBtn">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          <span id="shareQrBtnText">Share QR</span>
+        </button>
+      </div>
+
+      <!-- Single-Line Clean Link Bar (No giant multiline text block) -->
+      <div class="link-bar" id="linkBar">
+        <input type="text" readonly id="shareLinkInput" class="link-input" spellcheck="false" />
+        <button type="button" class="copy-icon-btn" id="quickCopyBtn" title="Copy link">Copy</button>
+        <a id="openLinkBtn" target="_blank" class="open-icon-btn" title="Open in new tab">Open ↗</a>
       </div>
     </div>
   </div>
@@ -2124,30 +2230,49 @@ function getAppBaseUrl(forShare = false) {
 function encodeCardData(record) {
   if (!record || typeof record !== 'object') return '';
   try {
-    // Keep URL ultra-compact: strictly exclude raw base64 data: URIs!
-    const cleanPhotos = (record.photos || []).filter(u => typeof u === 'string' && !u.startsWith('data:'));
-    const cleanWall = (record.wallPhotos || []).filter(u => typeof u === 'string' && !u.startsWith('data:'));
+    const ev = record.eventType || 'boyfriend';
+    const preset = EVENT_PRESETS[ev] || EVENT_PRESETS.boyfriend;
+
     const compact = {
-      i: record.id || '',
-      e: record.eventType || 'boyfriend',
-      t: record.eventTitle || record.eventName || '',
-      v: record.vibe || 'romantic',
-      s: record.sender || '',
-      r: record.receiver || '',
-      m: record.message || '',
-      w: record.witnessName || '',
-      ct: record.certificateTitle || '',
-      cs: record.certificateSigner || '',
-      tr: record.certificateTerms || [],
-      mn: record.memoryNotes || [],
-      sc: record.scratchCoupons || [],
-      sq: record.secretQuestion || '',
-      sa: record.secretAnswer || '',
-      sh: record.secretHint || '',
-      st: record.songTitle || '',
-      p: cleanPhotos,
-      wp: cleanWall
+      i: record.id || ''
     };
+    if (ev && ev !== 'boyfriend') compact.e = ev;
+    if (record.sender) compact.s = record.sender;
+    if (record.receiver) compact.r = record.receiver;
+    if (record.message) compact.m = record.message;
+    if (record.vibe && record.vibe !== 'romantic') compact.v = record.vibe;
+    if (record.eventTitle && record.eventTitle !== preset.name) compact.t = record.eventTitle;
+    if (record.witnessName && record.witnessName !== preset.certificate.witness) compact.w = record.witnessName;
+    if (record.certificateTitle && record.certificateTitle !== preset.certificate.title) compact.ct = record.certificateTitle;
+    if (record.certificateSigner && record.certificateSigner !== preset.certificate.signer) compact.cs = record.certificateSigner;
+    if (record.secretQuestion) compact.sq = record.secretQuestion;
+    if (record.secretAnswer) compact.sa = record.secretAnswer;
+    if (record.secretHint) compact.sh = record.secretHint;
+    if (record.songTitle && record.songTitle !== 'Our Song') compact.st = record.songTitle;
+
+    // Only include terms/memories/coupons if they were actually modified from preset defaults
+    if (Array.isArray(record.certificateTerms) && record.certificateTerms.length) {
+      if (JSON.stringify(record.certificateTerms) !== JSON.stringify(preset.certificate.terms)) {
+        compact.tr = record.certificateTerms;
+      }
+    }
+    if (Array.isArray(record.memoryNotes) && record.memoryNotes.length) {
+      if (JSON.stringify(record.memoryNotes) !== JSON.stringify(preset.memories)) {
+        compact.mn = record.memoryNotes;
+      }
+    }
+    if (Array.isArray(record.scratchCoupons) && record.scratchCoupons.length) {
+      if (JSON.stringify(record.scratchCoupons) !== JSON.stringify(preset.scratch.coupons)) {
+        compact.sc = record.scratchCoupons;
+      }
+    }
+
+    const cleanPhotos = (record.photos || []).filter(u => typeof u === 'string' && !u.startsWith('data:'));
+    if (cleanPhotos.length) compact.p = cleanPhotos;
+
+    const cleanWall = (record.wallPhotos || []).filter(u => typeof u === 'string' && !u.startsWith('data:'));
+    if (cleanWall.length) compact.wp = cleanWall;
+
     const jsonStr = JSON.stringify(compact);
     const utf8Bytes = new TextEncoder().encode(jsonStr);
     let binStr = "";
@@ -3707,16 +3832,19 @@ async function finalizeUpload(){
     } catch(e) {}
 
     // Universal standalone card payload: encoded into URL query parameter
+    // Universal standalone card payload: encoded into URL query parameter
     // Uses server URLs if uploaded, or preset paths, but NEVER raw data: blobs so it stays under 800 chars
     const encoded = encodeCardData(serverRecord || clientRecord);
     const shareBase = getAppBaseUrl(true);
-    fullLink = `${shareBase}?id=${resultId}&card=${encoded}`;
+    fullLink = encoded ? `${shareBase}?id=${resultId}&c=${encoded}` : `${shareBase}?id=${resultId}`;
 
     pending = { sid: resultId, done: true, fullLink };
 
-    // Update UI elements
-    $("shareLink").textContent = fullLink;
-    $("openLinkBtn").href = fullLink;
+    // Update single-line link bar
+    const linkInput = $("shareLinkInput");
+    if (linkInput) linkInput.value = fullLink;
+    const openBtn = $("openLinkBtn");
+    if (openBtn) openBtn.href = fullLink;
 
     // Show LAN Wi-Fi notice if local
     const noticeEl = $("localShareNotice");
@@ -3736,38 +3864,115 @@ async function finalizeUpload(){
     // Render the QR code safely
     renderQrCode($("qr"), fullLink);
 
-    $("copyBtn").onclick = () => {
-      navigator.clipboard.writeText(fullLink);
-      $("copyBtn").textContent = "Copied! ✓";
-      setTimeout(() => $("copyBtn").textContent = "Copy link", 2500);
-    };
+    // Setup the 2 Primary Action Buttons:
+    // Button 1: Share Link (Web Share API + Clipboard Copy)
+    const shareLinkBtn = $("shareLinkBtn");
+    if (shareLinkBtn) {
+      shareLinkBtn.onclick = async () => {
+        const textLabel = $("shareLinkBtnText");
+        let shared = false;
+        if (navigator.share) {
+          try {
+            await navigator.share({
+              title: 'Special Surprise E-Card 💌',
+              text: `A special surprise e-card from ${sender || 'Someone Special'}! Open it here:`,
+              url: fullLink
+            });
+            shared = true;
+          } catch(err) {
+            if (err.name === 'AbortError') return;
+          }
+        }
+        
+        // Also copy to clipboard for convenience
+        try {
+          await navigator.clipboard.writeText(fullLink);
+        } catch(e) {}
 
-    $("dlBtn").onclick = () => {
-      const canvas = $("qr").querySelector("canvas");
-      if(canvas){
-        const a = document.createElement("a");
-        a.href = canvas.toDataURL("image/png");
-        a.download = `ecard-qr-${resultId.slice(0,6)}.png`;
-        a.click();
-        return;
-      }
-      const img = $("qr").querySelector("img");
-      if(img && img.src){
-        const a = document.createElement("a");
-        a.href = img.src;
-        a.target = "_blank";
-        a.download = `ecard-qr-${resultId.slice(0,6)}.png`;
-        a.click();
-      }
-    };
+        if (textLabel) {
+          textLabel.textContent = shared ? "Shared! ✓" : "Copied! ✓";
+          setTimeout(() => { textLabel.textContent = "Share Link"; }, 2500);
+        }
+      };
+    }
+
+    // Button 2: Share QR (Native Image Share + Image Download)
+    const shareQrBtn = $("shareQrBtn");
+    if (shareQrBtn) {
+      shareQrBtn.onclick = async () => {
+        const textLabel = $("shareQrBtnText");
+        const canvas = $("qr").querySelector("canvas");
+        const img = $("qr").querySelector("img");
+
+        const triggerDownload = (url) => {
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `ecard-qr-${resultId.slice(0,6)}.png`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          if (textLabel) {
+            textLabel.textContent = "Saved! ✓";
+            setTimeout(() => { textLabel.textContent = "Share QR"; }, 2500);
+          }
+        };
+
+        if (canvas) {
+          if (canvas.toBlob && navigator.share && navigator.canShare) {
+            canvas.toBlob(async (blob) => {
+              if (!blob) { triggerDownload(canvas.toDataURL("image/png")); return; }
+              const file = new File([blob], `ecard-qr-${resultId.slice(0,6)}.png`, { type: "image/png" });
+              if (navigator.canShare({ files: [file] })) {
+                try {
+                  await navigator.share({
+                    title: 'Special E-Card QR Code',
+                    text: 'Scan this QR code to open your surprise e-card!',
+                    files: [file]
+                  });
+                  if (textLabel) {
+                    textLabel.textContent = "Shared! ✓";
+                    setTimeout(() => { textLabel.textContent = "Share QR"; }, 2500);
+                  }
+                  return;
+                } catch(err) {
+                  if (err.name === 'AbortError') return;
+                }
+              }
+              triggerDownload(canvas.toDataURL("image/png"));
+            }, "image/png");
+            return;
+          }
+          triggerDownload(canvas.toDataURL("image/png"));
+          return;
+        }
+
+        if (img && img.src) {
+          triggerDownload(img.src);
+        }
+      };
+    }
+
+    // Quick Copy button in link bar
+    const quickCopyBtn = $("quickCopyBtn");
+    if (quickCopyBtn) {
+      quickCopyBtn.onclick = async () => {
+        try {
+          await navigator.clipboard.writeText(fullLink);
+          quickCopyBtn.textContent = "✓ Copied";
+          setTimeout(() => { quickCopyBtn.textContent = "Copy"; }, 2000);
+        } catch(e) {}
+      };
+    }
   } catch(e) {
     console.error("Upload error, using emergency fallback:", e);
     try {
       const emergencyId = 'ecard-' + Date.now();
       const emergencyLink = `${getAppBaseUrl()}?id=${emergencyId}`;
       setState("sDone");
-      $("shareLink").textContent = emergencyLink;
-      $("openLinkBtn").href = emergencyLink;
+      const linkInput = $("shareLinkInput");
+      if (linkInput) linkInput.value = emergencyLink;
+      const openBtn = $("openLinkBtn");
+      if (openBtn) openBtn.href = emergencyLink;
       renderQrCode($("qr"), emergencyLink);
     } catch(err2) {
       $("failMsg").textContent = e.message;

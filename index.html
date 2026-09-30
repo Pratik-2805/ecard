@@ -1380,13 +1380,13 @@ a.btn { display: inline-block; text-decoration: none; }
   <h1 class="title" id="vTitle"></h1>
   <span class="ribbon" id="vRibbon"></span>
   <div class="hero">
-    <div class="polaroid"><img id="heroImg" src="p2.jpeg" alt="Memory"></div>
+    <div class="polaroid"><img id="heroImg" src="p2.jpeg" alt="Memory" onerror="this.src='assets/mini1.gif'"></div>
     <div class="msg" id="vMsg"></div>
   </div>
   <div class="minis" id="minis"></div>
   
   <div class="player" id="musicPlayerBox">
-    <img id="pArt" src="assets/mini1.gif" alt="Album Art" onerror="this.src='https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcXJ2dTFuNDRqcWxmMDV6ejZ6MHg5MTlqcG9uYm0wN2lkd2wwN2s3ZyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/QO6gybBh0d4LLTNn1d/giphy.gif'">
+    <img id="pArt" src="assets/mini1.gif" alt="Album Art" onerror="this.src='assets/mini1.gif'">
     <div class="pm">
       <div class="now" id="pNowLabel">NOW PLAYING</div>
       <h3 id="pSongTitle">Our Song</h3><small id="pSongArtist">the soundtrack of us</small>
@@ -1416,14 +1416,14 @@ a.btn { display: inline-block; text-decoration: none; }
     <h2 id="certHeading">Certified Special Human</h2>
     <p id="certIntro">This is to certify that</p>
     <div class="who" id="cWho"></div>
-    <img class="cph" id="cPh" alt="Photo">
+    <img class="cph" id="cPh" alt="Photo" onerror="this.src='assets/mini1.gif'">
     <p id="certSubText">is officially recognized with these lifelong privileges &amp; duties:</p>
     <ul class="terms" id="certTermsList"></ul>
     <div class="sigs">
       <div><b id="cFrom"></b><small id="sigFromRole">issued with love by</small></div>
       <div>
         <b id="cWitness">
-          <img id="witnessAvatarImg" class="witness-avatar hidden" alt="Witness">
+          <img id="witnessAvatarImg" class="witness-avatar hidden" alt="Witness" onerror="this.src='assets/cat.gif'">
           <span id="witnessNameText">the cat</span>
         </b>
         <small>official witness</small>
@@ -1461,7 +1461,7 @@ a.btn { display: inline-block; text-decoration: none; }
   </div>
   
   <div class="letter2">
-    <div class="pp pa"><img id="lp0" alt="Memory 1"></div><div class="pp pb"><img id="lp1" alt="Memory 2"></div><div class="pp pc"><img id="lp2" alt="Memory 3"></div>
+    <div class="pp pa"><img id="lp0" alt="Memory 1" onerror="this.src='assets/mini1.gif'"></div><div class="pp pb"><img id="lp1" alt="Memory 2" onerror="this.src='assets/mini2.gif'"></div><div class="pp pc"><img id="lp2" alt="Memory 3" onerror="this.src='assets/mini3.gif'"></div>
     <div class="note" id="note"></div>
     <img class="cat2" id="catImg2" src="assets/cat.gif" alt="Cat sticker" onerror="this.src='https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3ejQ5bmwwb3ZuamNpZXF1NDV6b3YzbHk2YmF3YWh0OG8wcDc4MzlyNCZlcD12MV9zdGlja2Vyc19yZWxhdGVkJmN0PXM/eAot8Ldr85y3peseC3/giphy.gif'">
   </div>
@@ -1504,6 +1504,9 @@ a.btn { display: inline-block; text-decoration: none; }
     <div id="sDone" class="hidden">
       <h2>It's ready! 🎉</h2>
       <div id="qr"></div>
+      <p id="localShareNotice" class="hidden" style="font-size:12px;color:var(--mut);margin:8px 0;line-height:1.4;">
+        📱 <b>Wi-Fi Scannable:</b> Formatted for phones on this Wi-Fi (<span id="lanNoticeIp" style="font-weight:600;color:var(--text);"></span>)
+      </p>
       <div class="link" id="shareLink"></div>
       <div class="btns">
         <button class="btn" id="copyBtn">Copy link</button>
@@ -2084,27 +2087,128 @@ function resolveAssetUrl(u) {
   return u.replace(/^\/+/, '');
 }
 
-function getAppBaseUrl() {
+let detectedLanIp = null;
+let detectedPort = null;
+
+async function fetchLanInfo() {
+  try {
+    const res = await fetch('api/info');
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.lanIp) {
+        detectedLanIp = data.lanIp;
+        detectedPort = data.port || window.location.port;
+      }
+    }
+  } catch(e) {}
+}
+fetchLanInfo();
+
+function getAppBaseUrl(forShare = false) {
   const loc = window.location;
   const pathWithoutIndex = loc.pathname.replace(/\/index\.html$/i, '').replace(/\/+$/, '');
-  return `${loc.origin}${pathWithoutIndex}/`;
+  const path = pathWithoutIndex ? `${pathWithoutIndex}/` : '/';
+
+  // If generating a link or QR code to share while running on localhost,
+  // use the computer's detected LAN IP so phones on the same Wi-Fi can scan and view it!
+  if (forShare && (loc.hostname === 'localhost' || loc.hostname === '127.0.0.1')) {
+    if (detectedLanIp) {
+      const portPart = loc.port ? `:${loc.port}` : (detectedPort ? `:${detectedPort}` : '');
+      return `${loc.protocol}//${detectedLanIp}${portPart}${path}`;
+    }
+  }
+
+  return `${loc.origin}${path}`;
 }
 
-function encodeCardData(data) {
+function encodeCardData(record) {
+  if (!record || typeof record !== 'object') return '';
   try {
-    const str = JSON.stringify(data);
-    return encodeURIComponent(btoa(unescape(encodeURIComponent(str))));
-  } catch (e) {
+    // Keep URL ultra-compact: strictly exclude raw base64 data: URIs!
+    const cleanPhotos = (record.photos || []).filter(u => typeof u === 'string' && !u.startsWith('data:'));
+    const cleanWall = (record.wallPhotos || []).filter(u => typeof u === 'string' && !u.startsWith('data:'));
+    const compact = {
+      i: record.id || '',
+      e: record.eventType || 'boyfriend',
+      t: record.eventTitle || record.eventName || '',
+      v: record.vibe || 'romantic',
+      s: record.sender || '',
+      r: record.receiver || '',
+      m: record.message || '',
+      w: record.witnessName || '',
+      ct: record.certificateTitle || '',
+      cs: record.certificateSigner || '',
+      tr: record.certificateTerms || [],
+      mn: record.memoryNotes || [],
+      sc: record.scratchCoupons || [],
+      sq: record.secretQuestion || '',
+      sa: record.secretAnswer || '',
+      sh: record.secretHint || '',
+      st: record.songTitle || '',
+      p: cleanPhotos,
+      wp: cleanWall
+    };
+    const jsonStr = JSON.stringify(compact);
+    const utf8Bytes = new TextEncoder().encode(jsonStr);
+    let binStr = "";
+    for (let i = 0; i < utf8Bytes.length; i++) {
+      binStr += String.fromCharCode(utf8Bytes[i]);
+    }
+    // URL-safe Base64
+    return btoa(binStr).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  } catch(e) {
+    console.warn("Could not encode compact card:", e);
     return "";
   }
 }
 
 function decodeCardData(encoded) {
+  if (!encoded || typeof encoded !== 'string') return null;
   try {
-    const str = decodeURIComponent(escape(atob(decodeURIComponent(encoded))));
-    return JSON.parse(str);
-  } catch (e) {
-    console.error("Failed to decode card data:", e);
+    let base64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
+    while (base64.length % 4) base64 += '=';
+    const binStr = atob(base64);
+    const bytes = new Uint8Array(binStr.length);
+    for (let i = 0; i < binStr.length; i++) {
+      bytes[i] = binStr.charCodeAt(i);
+    }
+    const jsonStr = new TextDecoder().decode(bytes);
+    const c = JSON.parse(jsonStr);
+    if (!c || typeof c !== 'object') return null;
+
+    const ev = c.e || 'boyfriend';
+    const preset = EVENT_PRESETS[ev] || EVENT_PRESETS.boyfriend;
+
+    return {
+      id: c.i || ('ecard-' + Date.now()),
+      eventType: ev,
+      eventTitle: c.t || preset.name,
+      eventName: c.t || preset.name,
+      sender: c.s || 'Someone Special',
+      receiver: c.r || 'You',
+      message: c.m || '',
+      vibe: c.v || 'romantic',
+      envelopeLetterTitle: preset.envelope.h2,
+      envelopeLetterSub: preset.envelope.p1,
+      envelopeStamp: preset.envelope.stamp,
+      certificateBadge: preset.certificate.badge,
+      certificateTitle: c.ct || preset.certificate.title,
+      certificateTerms: (Array.isArray(c.tr) && c.tr.length) ? c.tr : preset.certificate.terms,
+      certificateSigner: c.cs || preset.certificate.signer,
+      witnessName: c.w || preset.certificate.witness,
+      witnessPhotoUrl: '',
+      wallPhotos: (Array.isArray(c.wp) && c.wp.length) ? c.wp : preset.memories.map((_, i) => `library/viral_${(i%6)+1}.jpg`),
+      memoryNotes: (Array.isArray(c.mn) && c.mn.length) ? c.mn : preset.memories,
+      scratchCoupons: (Array.isArray(c.sc) && c.sc.length) ? c.sc : preset.scratch.coupons,
+      secretQuestion: c.sq || '',
+      secretAnswer: c.sa || '',
+      secretHint: c.sh || '',
+      themeColors: preset.theme,
+      songTitle: c.st || 'Our Song',
+      photos: (Array.isArray(c.p) && c.p.length) ? c.p : (preset.polaroids || DEF)
+    };
+  } catch(e) {
+    console.warn("Could not decode card data:", e);
     return null;
   }
 }
@@ -3323,16 +3427,11 @@ if(mode==="create"){
   
   (async()=>{
     let d = null;
-
-    // 1. Check URL for direct card parameter (?card= or #card=)
     const hashM = location.hash.match(/#card=([^&]+)/);
     const cParam = urlParams.get("card") || (hashM ? hashM[1] : null);
-    if (cParam) {
-      d = decodeCardData(cParam);
-    }
 
-    // 2. If not decoded from URL, fetch from Backend API
-    if (!d && sid0) {
+    // 1. Try Backend API first if sid0 is present
+    if (sid0) {
       try {
         const basePath = getAppBaseUrl();
         const res = await fetch(`${basePath}api/surprise/${encodeURIComponent(sid0)}`);
@@ -3340,11 +3439,16 @@ if(mode==="create"){
           d = await res.json();
         }
       } catch(e) {
-        console.warn('Fetch error from backend:', e);
+        console.warn('Backend fetch failed, trying url card/localStorage fallback:', e);
       }
     }
-    
-    // 3. Fallback to localStorage
+
+    // 2. Direct standalone card payload from URL parameter or hash
+    if (!d && cParam) {
+      d = decodeCardData(cParam);
+    }
+
+    // 3. Fallback to localStorage on the device
     if (!d && sid0) {
       try {
         const localRecord = localStorage.getItem("ecard_" + sid0);
@@ -3353,18 +3457,41 @@ if(mode==="create"){
         }
       } catch(e) {}
     }
-    
+
     if(!d){
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || /^192\.168\./.test(window.location.hostname);
+      const networkHint = isLocal 
+        ? `<p style="margin-top:8px;font-size:13px;color:var(--mut);">📱 Viewing on a phone? Make sure your phone is connected to the same Wi-Fi network as the device that created the card.</p>`
+        : `<p style="margin-top:8px;font-size:13px;color:var(--mut);">The card may have expired or the link may be incomplete.</p>`;
+
       $("pg1").innerHTML = `
-        <div class="wrap" style="text-align:center;padding-top:100px;">
+        <div class="wrap" style="text-align:center;padding-top:80px;max-width:440px;margin:0 auto;">
+          <div style="font-size:48px;margin-bottom:12px;">💌</div>
           <h2>This link doesn't look right</h2>
-          <p style="margin-top:10px;color:var(--mut);">Ask the sender to share the link again, or create your own!</p>
-          <a class="btn" href="${getAppBaseUrl()}" style="margin-top:24px;">Create an E-Card ✿</a>
+          <p style="margin-top:10px;color:var(--mut);line-height:1.5;">We couldn't load this surprise card.</p>
+          ${networkHint}
+          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:24px;">
+            <button class="btn ghost" onclick="location.reload()">Try Again ↻</button>
+            <button class="btn ghost" id="demoCardBtn">View Demo Surprise ✨</button>
+            <a class="btn" href="${getAppBaseUrl()}" style="text-decoration:none;">Create E-Card ✿</a>
+          </div>
         </div>`;
       $("pg1").classList.remove("hidden");
+
+      const demoBtn = $("demoCardBtn");
+      if (demoBtn) {
+        demoBtn.onclick = () => {
+          const demoData = decodeCardData("eyJpIjoiZGVtbyIsImUiOiJib3lmcmllbmQiLCJ0IjoiQm95ZnJpZW5kJ3MgRGF5IiwidiI6InJvbWFudGljIiwicyI6IkFsZXgiLCJyIjoiU2FtaSIsIm0iOiJZb3UgbWFrZSBldmVyeSBzaW5nbGUgZGF5IGJyaWdodGVyLCBiZXR0ZXIsIGFuZCBmdWxsIG9mIGxhdWdodGVyLiBUaGFuayB5b3UgZm9yIGJlaW5nIG15IGZhdm9yaXRlIHBlcnNvbiEg4p2kIiwidyI6IlNpdGFyYSB0aGUgQ2F0In0");
+          if (demoData) {
+            $("pg1").innerHTML = "";
+            render(demoData);
+            show(1, false);
+          }
+        };
+      }
       return;
     }
-    
+
     render(d); 
     show(1,false);
   })();
@@ -3504,6 +3631,7 @@ async function finalizeUpload(){
     let resultId = null;
     let fullLink = "";
     let serverSuccess = false;
+    let serverRecord = null;
 
     // Try posting to backend API first
     try {
@@ -3517,10 +3645,10 @@ async function finalizeUpload(){
         const result = await response.json();
         resultId = result.id;
         serverSuccess = true;
-        fullLink = `${getAppBaseUrl()}?id=${result.id}`;
-        if (result.data) {
+        serverRecord = result.data;
+        if (serverRecord) {
           try {
-            localStorage.setItem("ecard_" + resultId, JSON.stringify(result.data));
+            localStorage.setItem("ecard_" + resultId, JSON.stringify(serverRecord));
           } catch(e) {}
         }
       }
@@ -3528,66 +3656,79 @@ async function finalizeUpload(){
       console.warn("Backend API not reachable (static host or offline). Falling back to client-side card generation:", netErr);
     }
 
-    // If backend was not reachable or failed (e.g. static hosting on GitHub Pages, Cloudflare Pages, Vercel static):
-    if (!serverSuccess || !resultId) {
+    if (!resultId) {
       resultId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : ('ecard-' + Date.now());
-
-      // Convert images to small data URLs so the card is completely self-contained
-      const photoDataUrls = await Promise.all(
-        compressedCoupleBlobs.map(async (b) => b ? (await blobToDataUrl(b)) : "")
-      );
-
-      const wallDataUrls = await Promise.all(
-        wallSlots.map(async (s) => {
-          if (s.file) {
-            const b = await shrink(s.file, 600);
-            return await blobToDataUrl(b);
-          }
-          return resolveAssetUrl(s.url);
-        })
-      );
-
-      const clientRecord = {
-        id: resultId,
-        eventType: currentEvent,
-        eventTitle: customTitle,
-        vibe: currentVibe,
-        envelopeLetterTitle: preset.envelope.h2,
-        envelopeLetterSub: preset.envelope.p1,
-        envelopeStamp: preset.envelope.stamp,
-        certificateBadge: preset.certificate.badge,
-        certificateTitle: $("certTitleInput").value.trim() || preset.certificate.title,
-        certificateTerms: customTerms.length ? customTerms : preset.certificate.terms,
-        witnessName: $("witnessNameInput").value.trim() || preset.certificate.witness,
-        witnessPhotoUrl: selectedWitnessPhoto ? (await blobToDataUrl(await shrink(selectedWitnessPhoto, 400))) : "",
-        wallPhotos: wallDataUrls,
-        memoryNotes: finalMemories,
-        scratchCoupons: couponsList,
-        secretQuestion: $("secretQuestionInput").value.trim(),
-        secretAnswer: $("secretAnswerInput").value.trim(),
-        secretHint: $("secretHintInput").value.trim(),
-        themeColors: preset.theme,
-        songTitle: songTitleVal || "Our Song",
-        sender,
-        receiver,
-        message,
-        photos: photoDataUrls.filter(Boolean).length ? photoDataUrls : DEF
-      };
-
-      try {
-        localStorage.setItem("ecard_" + resultId, JSON.stringify(clientRecord));
-      } catch(e) {}
-
-      // Build standalone link: includes both ID and encoded payload for universal access
-      const encoded = encodeCardData(clientRecord);
-      fullLink = `${getAppBaseUrl()}?id=${resultId}#card=${encoded}`;
     }
+
+    // Convert images to small data URLs so the card is completely self-contained for local storage
+    const photoDataUrls = await Promise.all(
+      compressedCoupleBlobs.map(async (b) => b ? (await blobToDataUrl(b)) : "")
+    );
+
+    const wallDataUrls = await Promise.all(
+      wallSlots.map(async (s) => {
+        if (s.file) {
+          const b = await shrink(s.file, 600);
+          return await blobToDataUrl(b);
+        }
+        return resolveAssetUrl(s.url);
+      })
+    );
+
+    const clientRecord = {
+      id: resultId,
+      eventType: currentEvent,
+      eventTitle: customTitle,
+      vibe: currentVibe,
+      envelopeLetterTitle: preset.envelope.h2,
+      envelopeLetterSub: preset.envelope.p1,
+      envelopeStamp: preset.envelope.stamp,
+      certificateBadge: preset.certificate.badge,
+      certificateTitle: $("certTitleInput").value.trim() || preset.certificate.title,
+      certificateTerms: customTerms.length ? customTerms : preset.certificate.terms,
+      witnessName: $("witnessNameInput").value.trim() || preset.certificate.witness,
+      witnessPhotoUrl: selectedWitnessPhoto ? (await blobToDataUrl(await shrink(selectedWitnessPhoto, 400))) : "",
+      wallPhotos: wallDataUrls,
+      memoryNotes: finalMemories,
+      scratchCoupons: couponsList,
+      secretQuestion: $("secretQuestionInput").value.trim(),
+      secretAnswer: $("secretAnswerInput").value.trim(),
+      secretHint: $("secretHintInput").value.trim(),
+      themeColors: preset.theme,
+      songTitle: songTitleVal || "Our Song",
+      sender,
+      receiver,
+      message,
+      photos: photoDataUrls.filter(Boolean).length ? photoDataUrls : DEF
+    };
+
+    try {
+      localStorage.setItem("ecard_" + resultId, JSON.stringify(serverRecord || clientRecord));
+    } catch(e) {}
+
+    // Universal standalone card payload: encoded into URL query parameter
+    // Uses server URLs if uploaded, or preset paths, but NEVER raw data: blobs so it stays under 800 chars
+    const encoded = encodeCardData(serverRecord || clientRecord);
+    const shareBase = getAppBaseUrl(true);
+    fullLink = `${shareBase}?id=${resultId}&card=${encoded}`;
 
     pending = { sid: resultId, done: true, fullLink };
 
     // Update UI elements
     $("shareLink").textContent = fullLink;
     $("openLinkBtn").href = fullLink;
+
+    // Show LAN Wi-Fi notice if local
+    const noticeEl = $("localShareNotice");
+    if (noticeEl) {
+      if ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && detectedLanIp) {
+        noticeEl.classList.remove("hidden");
+        const ipSpan = $("lanNoticeIp");
+        if (ipSpan) ipSpan.textContent = detectedLanIp;
+      } else {
+        noticeEl.classList.add("hidden");
+      }
+    }
 
     // Set state to sDone so the container is visible and has layout dimensions
     setState("sDone");

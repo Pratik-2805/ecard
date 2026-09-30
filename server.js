@@ -114,6 +114,34 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });
 });
 
+// Function to detect LAN IPv4 for mobile testing
+function getLanIp() {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      if (
+        iface.family === 'IPv4' && 
+        !iface.internal && 
+        !iface.address.startsWith('172.27.') && 
+        !iface.address.startsWith('169.254.')
+      ) {
+        return iface.address;
+      }
+    }
+  }
+  return null;
+}
+
+// API: Server Network Info (enables phone scanning of QR codes over local Wi-Fi)
+app.get('/api/info', (req, res) => {
+  res.json({
+    status: 'ok',
+    lanIp: getLanIp(),
+    port: PORT,
+    isServerless: isServerless
+  });
+});
+
 // API: Create new surprise with uploaded photos, song, voice note, and custom modules
 app.post('/api/create', upload.fields([
   { name: 'photos', maxCount: 6 },
@@ -323,7 +351,12 @@ app.post('/api/upload', upload.single('photo'), (req, res) => {
 // API: Fetch surprise by ID
 app.get('/api/surprise/:id', (req, res) => {
   const surprises = getSurprises();
-  const record = surprises[req.params.id];
+  const targetId = (req.params.id || '').trim();
+  let record = surprises[targetId];
+  if (!record) {
+    const key = Object.keys(surprises).find(k => k.toLowerCase() === targetId.toLowerCase());
+    if (key) record = surprises[key];
+  }
   if (!record) {
     return res.status(404).json({ error: 'Surprise not found' });
   }
@@ -346,7 +379,10 @@ app.get('/api/surprises', (req, res) => {
 // Start Server if directly run
 if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
   app.listen(PORT, () => {
-    console.log(`Boyfriend's Day server running at http://localhost:${PORT}`);
+    const lan = getLanIp();
+    console.log(`Boyfriend's Day server running at:`);
+    console.log(`  - Local:   http://localhost:${PORT}`);
+    if (lan) console.log(`  - Network: http://${lan}:${PORT}`);
   });
 }
 

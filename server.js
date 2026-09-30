@@ -100,6 +100,24 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static frontend files
 app.use(express.static(PUBLIC_DIR));
 
+// Backward compatibility for /library -> memes
+app.use('/library', express.static(path.join(PUBLIC_DIR, 'memes')));
+
+// Serve default category songs
+app.use('/songs', express.static(path.join(PUBLIC_DIR, 'songs')));
+
+// Default music for each event category (plays if user doesn't upload device audio)
+const DEFAULT_CATEGORY_SONGS = {
+  boyfriend: { url: 'songs/boyfriend.mp3', title: 'I Love You - Acoustic Vibes' },
+  girlfriend: { url: 'songs/girlfriend.mp3', title: 'There is Romance - Sweet Melody' },
+  bestfriend: { url: 'songs/bestfriend.mp3', title: 'Carefree - Besties Forever' },
+  valentines: { url: 'songs/valentines.mp3', title: 'Heartwarming - Valentine Serenade' },
+  missyou: { url: 'songs/missyou.mp3', title: 'Clear Air - Distance & Memories' },
+  anniversary: { url: 'songs/anniversary.mp3', title: 'Canon in D Major - Forever Love' },
+  birthday: { url: 'songs/birthday.mp3', title: 'Happy Birthday - Festive Melody' },
+  custom: { url: 'songs/custom.mp3', title: 'Carefree Melody - Special Surprise' }
+};
+
 // Serve uploaded images statically
 app.use('/uploads', express.static(UPLOADS_DIR));
 
@@ -207,25 +225,25 @@ app.post('/api/create', upload.fields([
     let wallUploadIdx = 0;
 
     if (Array.isArray(parsedWallConfig) && parsedWallConfig.length === 6) {
-      const defaultWallGifs = ['assets/mini1.gif', 'assets/mini2.gif', 'assets/mini3.gif', 'assets/mini5.gif', 'assets/mini7.gif', 'assets/mini8.gif'];
+      const defaultWallMemes = [1, 2, 3, 4, 5, 6].map(i => `memes/viral_${i}.jpg`);
       finalWallPhotos = parsedWallConfig.map((item, idx) => {
         if (typeof item === 'string' && item.startsWith('upload:')) {
           if (wallPhotoFiles[wallUploadIdx]) {
             const f = wallPhotoFiles[wallUploadIdx++];
             return `uploads/${sid}/${f.filename}`;
           }
-          return defaultWallGifs[idx] || 'assets/mini1.gif';
+          return defaultWallMemes[idx] || 'memes/viral_1.jpg';
         }
         if (typeof item === 'string' && item.trim()) {
           const trimmed = item.trim();
           // Remove leading slash for safe relative paths across subpaths
           return trimmed.replace(/^\//, '');
         }
-        return defaultWallGifs[idx] || 'assets/mini1.gif';
+        return defaultWallMemes[idx] || 'memes/viral_1.jpg';
       });
     } else {
-      // Default to first 6 assets mini gifs
-      finalWallPhotos = ['assets/mini1.gif', 'assets/mini2.gif', 'assets/mini3.gif', 'assets/mini5.gif', 'assets/mini7.gif', 'assets/mini8.gif'];
+      // Default to first 6 viral library memes
+      finalWallPhotos = [1, 2, 3, 4, 5, 6].map(i => `memes/viral_${i}.jpg`);
     }
 
     // Process custom uploaded song
@@ -303,8 +321,8 @@ app.post('/api/create', upload.fields([
       certificateSigner: certificateSigner || '',
       memoryNotes: parsedMemories,
       themeColors: parsedTheme,
-      musicUrl: customSongUrl || musicUrl || '',
-      songTitle: customSongTitle || 'Our Song',
+      musicUrl: customSongUrl || musicUrl || (DEFAULT_CATEGORY_SONGS[eventType] || DEFAULT_CATEGORY_SONGS.boyfriend).url,
+      songTitle: customSongTitle || (musicUrl ? (songTitle || 'Our Song') : (DEFAULT_CATEGORY_SONGS[eventType] || DEFAULT_CATEGORY_SONGS.boyfriend).title),
       // Optional interactive modules
       secretQuestion: (secretQuestion || '').trim(),
       secretAnswer: (secretAnswer || '').trim(),

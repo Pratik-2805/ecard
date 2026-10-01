@@ -191,6 +191,36 @@ async function uploadToCloud(filePath, originalname, mimetype) {
   return null;
 }
 
+// Cloud JSON Storage Helper: backs up full surprise JSON record to permanent public CDN
+async function uploadJsonToCloud(jsonData, sid) {
+  try {
+    const jsonStr = JSON.stringify(jsonData);
+    const form = new FormData();
+    form.append('reqtype', 'fileupload');
+    form.append('fileToUpload', new Blob([jsonStr], { type: 'application/json' }), `${sid || 'surprise'}.json`);
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 9000);
+
+    const res = await fetch('https://catbox.moe/user/api.php', {
+      method: 'POST',
+      body: form,
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+
+    if (res.ok) {
+      const url = (await res.text()).trim();
+      if (url.startsWith('http://') || url.startsWith('https://')) {
+        return url;
+      }
+    }
+  } catch (err) {
+    console.warn('Cloud JSON backup notice:', err.message);
+  }
+  return null;
+}
+
 // API: Create new surprise with uploaded photos, song, voice note, and custom modules
 app.post('/api/create', upload.fields([
   { name: 'photos', maxCount: 6 },
@@ -408,6 +438,11 @@ app.post('/api/create', upload.fields([
     surprises[sid] = newRecord;
     saveSurprises(surprises);
 
+    // Non-blocking permanent cloud backup (ensures link works forever even if serverless restarts)
+    uploadJsonToCloud(newRecord, sid).then(cloudUrl => {
+      if (cloudUrl) console.log(`[Cloud Backup] E-Card ${sid} synced to ${cloudUrl}`);
+    }).catch(() => {});
+
     console.log(`[Created] E-Card (${newRecord.eventType}) ${sid} for ${newRecord.receiver} from ${newRecord.sender} with vibe: ${newRecord.vibe}`);
 
     res.json({
@@ -430,7 +465,7 @@ app.post('/api/upload', upload.single('photo'), (req, res) => {
 });
 
 // API: Fetch surprise by ID
-app.get('/api/surprise/:id', (req, res) => {
+app.get('/api/surprise/:id', async (req, res) => {
   const surprises = getSurprises();
   const targetId = (req.params.id || '').trim();
   let record = surprises[targetId];
@@ -438,6 +473,17 @@ app.get('/api/surprise/:id', (req, res) => {
     const key = Object.keys(surprises).find(k => k.toLowerCase() === targetId.toLowerCase());
     if (key) record = surprises[key];
   }
+
+  // Cloud CDN fallback for serverless cold-starts or cross-device links
+  if (!record && targetId) {
+    try {
+      const cloudRes = await fetch(`https://files.catbox.moe/${targetId}.json`);
+      if (cloudRes.ok) {
+        record = await cloudRes.json();
+      }
+    } catch (e) { }
+  }
+
   if (!record) {
     return res.status(404).json({ error: 'Surprise not found' });
   }

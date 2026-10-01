@@ -3367,6 +3367,7 @@
 
         const ev = c.e || 'boyfriend';
         const preset = EVENT_PRESETS[ev] || EVENT_PRESETS.boyfriend;
+        const categoryDefault = CATEGORY_DEFAULT_SONGS[ev] || CATEGORY_DEFAULT_SONGS.boyfriend;
 
         return {
           id: c.i || ('ecard-' + Date.now()),
@@ -4571,6 +4572,16 @@
             }
           } catch (e) {
             console.warn('Backend fetch failed, trying url card/localStorage fallback:', e);
+          }
+
+          // Direct cloud CDN JSON fallback (handles serverless cold starts or offline server)
+          if (!d && sid0.length <= 12) {
+            try {
+              const cloudRes = await fetch(`https://files.catbox.moe/${encodeURIComponent(sid0)}.json`);
+              if (cloudRes.ok) {
+                d = await cloudRes.json();
+              }
+            } catch (e) { }
           }
         }
 
